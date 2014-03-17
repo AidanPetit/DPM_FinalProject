@@ -1,0 +1,25 @@
+import lejos.robotics.RegulatedMotor;
+import lejos.robotics.navigation.DifferentialPilot;
+
+
+public class Driver extends DifferentialPilot{
+	private final double LEFTWHEELDIAMETER=4.32;
+	private final double RIGHTWHEELDIAMETER=4.32;
+	private final double TRACKWIDTH=12.1;
+
+
+	public Driver(double leftWheelDiameter, double rightWheelDiameter,double trackWidth, RegulatedMotor leftMotor,RegulatedMotor rightMotor, boolean reverse) {
+		super(leftWheelDiameter, rightWheelDiameter, trackWidth, leftMotor, rightMotor,reverse);
+		leftWheelDiameter=this.WHEEL_SIZE_NXT2;
+		rightWheelDiameter=this.WHEEL_SIZE_NXT2;
+		trackWidth=this.TRACKWIDTH;
+		reverse=false;
+
+		// TODO Auto-generated constructor stub
+	}
+
+
+
+
+
+}
