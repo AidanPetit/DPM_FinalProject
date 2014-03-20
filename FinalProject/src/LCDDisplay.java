@@ -26,8 +26,11 @@ public class LCDDisplay implements TimerListener{
 		xPos=odo.getPose().getX();
 		yPos=odo.getPose().getY();
 		heading=odo.getPose().getHeading();
+		
+		LCD.clear(0);
+		LCD.clear(1);
+		LCD.clear(2);
 
-		LCD.clear();
 		LCD.drawString("X: ", 0, 0);
 		LCD.drawString("Y: ", 0, 1);
 		LCD.drawString("H: ", 0, 2);

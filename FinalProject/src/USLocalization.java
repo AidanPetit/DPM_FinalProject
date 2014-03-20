@@ -1,4 +1,3 @@
-import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
@@ -14,9 +13,8 @@ public class USLocalization {
 	private Navigator myNav;
 	private Driver myPilot;
 	private UltrasonicSensor localizationUS;
-	private ColorSensor localizationLS;
 
-
+	private double rotateSpeed = 100;	//degrees per second
 
 	public USLocalization(Team08Robot robot) {
 		this.myBot = robot;
@@ -26,10 +24,7 @@ public class USLocalization {
 		this.myPilot = myBot.getPilot();
 		
 		this.localizationUS = myBot.getFrontUS();
-		this.localizationLS = myBot.getRearCS();
 
-		// switch off the ultrasonic sensor
-		localizationUS.off();
 	}
 
 	public void doLocalization() {
@@ -41,12 +36,19 @@ public class USLocalization {
 		 */
 		double angleA, angleB;
 		int wall = getFilteredData();
+		
 		// rotate the robot until it sees no wall
-		while(wall<50){
-			myPilot.rotateRight();
+
+		myPilot.setRotateSpeed(rotateSpeed);
+		
+		myPilot.rotateRight();
+
+		while(wall!=60){
 			wall = getFilteredData();
 		}
+		
 		myPilot.stop();
+		Sound.buzz();
 
 		// rotate until the robot sees a wall, then latch the angle
 		myPilot.rotateRight();
@@ -56,8 +58,11 @@ public class USLocalization {
 			wall = getFilteredData();
 			LCD.drawString("US: "+wall, 0, 6);	//for debugging
 		}
+		
 		myPilot.stop();		
 		angleA = myOdo.getPose().getHeading();
+		LCD.drawString("angleA: "+angleA, 0, 4);	//for debugging
+
 		Sound.beep();							//for debugging
 
 		// switch direction and wait until it sees no wall
@@ -75,6 +80,7 @@ public class USLocalization {
 		}
 		myPilot.stop();
 		angleB = myOdo.getPose().getHeading();
+		LCD.drawString("angleB: "+angleB, 0, 5);	//for debugging
 
 		Sound.beep();
 		
@@ -87,26 +93,32 @@ public class USLocalization {
 		double delta = 0;
 		
 		if(angleA<angleB){
-			delta = 45-(angleA+(angleB-360))/2;
+			delta = 45-(angleA+angleB)/2;
 		}
 		else if(angleA>angleB){
-			delta = 225-(angleA+(angleB-360))/2;
+			delta = 225-(angleA+angleB)/2;
 		}
+		
 		Pose curr = myOdo.getPose();
+		
 		float X = curr.getX();
 		float Y = curr.getY();
-		float theta = (float) (180-(curr.getHeading()-delta)); 
+		float theta = (float) (curr.getHeading()+delta); 
+		
+		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
+
 		
 		Pose newPose = new Pose(X,Y,theta);
 
 		// update the odometer pose
 		myOdo.setPose(newPose);
 		
-		try{Thread.sleep(3000);}
+		
+		try{Thread.sleep(2000);}
 		catch(InterruptedException e){}
 		
-		myNav.goTo(0, 0);
-		myNav.rotateTo(180);
+		myNav.rotateTo(0);
+		
 	}
 
 	private int getFilteredData() {

@@ -6,15 +6,16 @@
 import lejos.nxt.*;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 
 public class FinalProject {
 	private static Team08Robot myBot;
+	private static LCDDisplay myLCD;
 
 	public static void main(String[] args) {
 		int buttonChoice;
 		Team08Robot myBot = new Team08Robot();
-		
-		Navigator nav=myBot.getNav();
 
 		do {
 			LCD.clear();
@@ -22,7 +23,7 @@ public class FinalProject {
 			LCD.drawString("< Left   | Right >", 0, 0);
 			LCD.drawString("         |    ", 0, 1);
 			LCD.drawString("   US    | drive ", 0, 2);
-			LCD.drawString("Localize | square", 0, 3);
+			LCD.drawString("Localize | ", 0, 3);
 
 			buttonChoice = Button.waitForAnyPress();
 
@@ -31,6 +32,7 @@ public class FinalProject {
 
 		if (buttonChoice == Button.ID_LEFT) {
 			LCD.clearDisplay();
+			myLCD = new LCDDisplay(myBot.getOdo());
 			
 			USLocalization USLocalizer = new USLocalization(myBot);
 			USLocalizer.doLocalization();
@@ -38,17 +40,12 @@ public class FinalProject {
 		}
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
-
-			nav.rotateTo(90);
-
-			Sound.beep();
-			nav.goTo(30, 0);
-			nav.goTo(30,30);
-			nav.goTo(0,30 );
-			nav.goTo(0,0);
-
+			
+			myLCD = new LCDDisplay(myBot.getOdo());
+			
+			
 		}
-		else if(Button.waitForAnyPress() == Button.ID_ESCAPE) {
+		if(Button.waitForAnyPress() == Button.ID_ESCAPE) {
 			System.exit(0);
 		}
 	}
