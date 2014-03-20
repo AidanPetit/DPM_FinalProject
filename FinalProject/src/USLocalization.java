@@ -8,24 +8,28 @@ import lejos.robotics.navigation.Pose;
 
 
 public class USLocalization {
-	public static double ROTATION_SPEED = 30;
-
+	private Team08Robot myBot;
+	
 	private OdometryPoseProvider myOdo;	
-	private ColorSensor myLS;
 	private Navigator myNav;
 	private Driver myPilot;
-	private UltrasonicSensor myUS;
+	private UltrasonicSensor localizationUS;
+	private ColorSensor localizationLS;
 
 
-	public USLocalization(OdometryPoseProvider odo, UltrasonicSensor us, Navigator nav,ColorSensor ls,Driver pilot) {
-		this.myOdo = odo;
-		this.myUS = us;
-		this.myLS = ls;
-		this.myNav = nav;
-		this.myPilot = pilot;
+
+	public USLocalization(Team08Robot robot) {
+		this.myBot = robot;
+		
+		this.myOdo = myBot.getOdo();
+		this.myNav = myBot.getNav();
+		this.myPilot = myBot.getPilot();
+		
+		this.localizationUS = myBot.getFrontUS();
+		this.localizationLS = myBot.getRearCS();
 
 		// switch off the ultrasonic sensor
-		myUS.off();
+		localizationUS.off();
 	}
 
 	public void doLocalization() {
@@ -78,8 +82,10 @@ public class USLocalization {
 		// angles to the right of angleB is 45 degrees past 'north'
 		// 
 		
-		double startingAng = -(angleB-360-angleA)/2 + 45 - angleA;
-		double delta=0;
+		//double startingAng = -(angleB-360-angleA)/2 + 45 - angleA;
+		
+		double delta = 0;
+		
 		if(angleA<angleB){
 			delta = 45-(angleA+(angleB-360))/2;
 		}
@@ -107,13 +113,13 @@ public class USLocalization {
 		int distance;
 
 		// do a ping
-		myUS.ping();
+		localizationUS.ping();
 
 		// wait for the ping to complete
 		try { Thread.sleep(50); } catch (InterruptedException e) {}
 
 		// there will be a delay here
-		distance = myUS.getDistance();
+		distance = localizationUS.getDistance();
 
 		//this filters out large values
 		if(distance>60){

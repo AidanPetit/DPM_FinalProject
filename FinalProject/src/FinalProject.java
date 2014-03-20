@@ -8,30 +8,48 @@ import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 
 public class FinalProject {
-	private static double leftWheelDiameter=4.32;
-	private static double rightWheelDiameter=4.32;
-	private static double width=16;
-	private static NXTRegulatedMotor leftMotor=Motor.A;
-	private static NXTRegulatedMotor rightMotor=Motor.B;
-	
-
+	private static Team08Robot myBot;
 
 	public static void main(String[] args) {
-		Button.waitForAnyPress();
-		Driver pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
-		OdometryPoseProvider odometer=new OdometryPoseProvider(pilot);
-		Navigator nav=new Navigator(pilot, odometer);
-		LCDDisplay display=new LCDDisplay(odometer);
+		int buttonChoice;
+		Team08Robot myBot = new Team08Robot();
 		
-		nav.rotateTo(90);
+		Navigator nav=myBot.getNav();
 
-		Sound.beep();
-		nav.goTo(30, 0);
-		nav.goTo(30,30);
-		nav.goTo(0,30 );
-		nav.goTo(0,0);
-		
-		Button.waitForAnyPress();
+		do {
+			LCD.clear();
 
+			LCD.drawString("< Left   | Right >", 0, 0);
+			LCD.drawString("         |    ", 0, 1);
+			LCD.drawString("   US    | drive ", 0, 2);
+			LCD.drawString("Localize | square", 0, 3);
+
+			buttonChoice = Button.waitForAnyPress();
+
+		} while (buttonChoice != Button.ID_LEFT
+				&& buttonChoice != Button.ID_RIGHT);
+
+		if (buttonChoice == Button.ID_LEFT) {
+			LCD.clearDisplay();
+			
+			USLocalization USLocalizer = new USLocalization(myBot);
+			USLocalizer.doLocalization();
+
+		}
+		else if(buttonChoice == Button.ID_RIGHT) {
+			LCD.clearDisplay();
+
+			nav.rotateTo(90);
+
+			Sound.beep();
+			nav.goTo(30, 0);
+			nav.goTo(30,30);
+			nav.goTo(0,30 );
+			nav.goTo(0,0);
+
+		}
+		else if(Button.waitForAnyPress() == Button.ID_ESCAPE) {
+			System.exit(0);
+		}
 	}
 }
