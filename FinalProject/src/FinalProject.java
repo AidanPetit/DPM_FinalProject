@@ -1,7 +1,7 @@
 /*	DPM Final Project - Main Class
- *  ECSE211-DPM	Group 22
+ *  ECSE211-DPM	Group 08
  * 	Wei-Di Chang 260524917
- *  Sok Heng Lim 260581435
+ *  Aidan Petit
  */
 import lejos.nxt.*;
 import lejos.robotics.localization.OdometryPoseProvider;
@@ -9,6 +9,16 @@ import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.pathfinding.Path;
 
+/**
+ * 
+ * Main class for the final project, execution starts from here.
+ * 
+ * 
+ * @author Wei-Di
+ * @version 1.0
+ * @since 1.0
+ */
+ 
 public class FinalProject {
 	private static Team08Robot myBot;
 	private static LCDDisplay myLCD;

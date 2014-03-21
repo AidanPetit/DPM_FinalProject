@@ -5,6 +5,16 @@ import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
 
+/**
+ * 
+ * Light Localization class which takes care of initial localization
+ *
+ * 
+ * @author Wei-Di Chang
+ * @version 1.0
+ * @since 1.0
+ */
+ 
 public class LightLocalization {
 	/*
 	 * This will probable be fairly buggy, I need to be in the lab to debug

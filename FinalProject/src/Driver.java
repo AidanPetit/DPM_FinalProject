@@ -8,6 +8,24 @@ import lejos.robotics.navigation.DifferentialPilot;
  * 
  */
 
+	/**
+	 * 
+	 * 
+	 * Driver class which extends DifferentialPilot, only class which has access to the two motors
+	 * 
+	 * @param leftWheelDiameter Diameter of the left wheel of the two wheeled robot
+	 * @param rightWheelDiameter Diameter of the right wheel of the two wheeled robot
+	 * @param trackWidth Length of the wheelbase of the two wheeled robot
+	 * @param leftMotor Left Motor of the two wheeled robot
+	 * @param rightMotor Right Motor of the two wheeled robot
+	 * @param reverse Boolean set if the robot is inverted, ie if the robot goes backwards to go forward
+	 * 
+	 * 
+	 * @author Wei-Di
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	 
 public class Driver extends DifferentialPilot{
 	private final double LEFTWHEELDIAMETER=4.32;
 	private final double RIGHTWHEELDIAMETER=4.32;

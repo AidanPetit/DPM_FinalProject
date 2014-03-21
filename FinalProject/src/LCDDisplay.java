@@ -3,6 +3,16 @@ import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
+/**
+ * 
+ * LCD Display class which allows display to the LCD screen as a separate timed thread
+ *
+ * 
+ * @author Wei-Di Chang
+ * @version 1.0
+ * @since 1.0
+ */
+ 
 public class LCDDisplay implements TimerListener{
 	public static final int LCD_REFRESH = 100;
 	private OdometryPoseProvider odo;
