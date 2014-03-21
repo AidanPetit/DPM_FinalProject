@@ -40,9 +40,26 @@ public class FinalProject {
 		}
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
-			
 			myLCD = new LCDDisplay(myBot.getOdo());
 			
+			myBot.getPilot().travel(30);
+			
+			/*
+			Waypoint w1 = new Waypoint(0,30);
+			Waypoint w2 = new Waypoint(30,60);
+			Waypoint w3 = new Waypoint(60,90);
+			Waypoint w4 = new Waypoint(45,45);
+			Waypoint w5 = new Waypoint(0,0);
+
+			Path path = new Path();
+			path.add(w1);
+			path.add(w2);
+			path.add(w3);
+			path.add(w4);
+			path.add(w5);
+				
+			myBot.getNav().followPath(path);
+			*/
 			
 		}
 		if(Button.waitForAnyPress() == Button.ID_ESCAPE) {
