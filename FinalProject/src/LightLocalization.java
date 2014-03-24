@@ -1,3 +1,8 @@
+/*	DPM Final Project - LighLocalization Class
+ *  ECSE211-DPM	Group 08
+ *  Wei-Di Chang 260524917
+ *  Aidan Petit
+ */
 import lejos.nxt.ColorSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
@@ -6,22 +11,22 @@ import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
 
 /**
- * 
+ *
  * Light Localization class which takes care of initial localization
  *
- * 
- * @author Wei-Di Chang
+ *
+ * @author Aidan Petit
  * @version 1.0
  * @since 1.0
  */
- 
+
 public class LightLocalization {
 	/*
 	 * This will probable be fairly buggy, I need to be in the lab to debug
 	 */
 
 	//private Team08Robot robot;	??
-	private OdometryPoseProvider odo;	
+	private OdometryPoseProvider odo;
 	private ColorSensor myLS;
 	private Navigator myNav;
 	private Driver myPilot;
@@ -31,7 +36,7 @@ public class LightLocalization {
 	public LightLocalization(OdometryPoseProvider odo, ColorSensor ls,Navigator nav, Driver driver) {
 		/*
 		 * Constructor for LightLocalization
-		 * 
+		 *
 		 * Use nav or pilot to control movement of the bot
 		 * and odometer to get position info
 		 */
@@ -45,8 +50,8 @@ public class LightLocalization {
 	public void doLocalization() {
 		/*
 		 * This localization assumes the robot is at roughly a 0 degrees heading
-		 * and is located inside the bottom-left box. 
-		 * 
+		 * and is located inside the bottom-left box.
+		 *
 		 * Localization is performed by rotating in place to detect 4 grid lines
 		 * then performing some basic trigonometry to calculate the robots X and Y position
 		 * and a more accurate value for the heading
@@ -55,16 +60,16 @@ public class LightLocalization {
 		boolean anglesClocked = false;
 		int lockCount = 0;
 
-		// need to figure out how to find desired position 
-		// for now this is the coordinates used for team24 in lab 4 
+		// need to figure out how to find desired position
+		// for now this is the coordinates used for team24 in lab 4
 
-		myNav.goTo(7,8);	
+		myNav.goTo(7,8);
 		myNav.rotateTo(90);
 
 		double[] xAngles = new double[2];	//holds the two angles when the light sensor detects the X axis
 		double[] yAngles = new double[2];	//holds the two angles for Y axis when sensor detects the line
 		double xAxisIntersectAngle = 0; 	//holds angle when lightsensor hits negative X axis
-		
+
 		// start rotating and clock all 4 gridlines
 		//rotate in place to clock angles
 		myLS.setFloodlight(true);
@@ -79,13 +84,13 @@ public class LightLocalization {
 			LCD.drawString("count: "+ lockCount, 0, 6); //output for debugging, might need to disable LCDDisplay to use
 
 			/*
-			 * this uses a threshold. this is a bad method we should use a 
-			 * differential method to detect the change in light instead. 
+			 * this uses a threshold. this is a bad method we should use a
+			 * differential method to detect the change in light instead.
 			 * Juan and I never implemented this
 			 */
-			
-			if (currentReading<300) {	
-				double currentTheta = currentPose.getHeading();	
+
+			if (currentReading<300) {
+				double currentTheta = currentPose.getHeading();
 				if (lockCount==0){ // negative x axis
 					xAngles[0] = currentTheta;
 					xAxisIntersectAngle = currentTheta; //save the negative x axis intersection angle for future reference
@@ -105,7 +110,7 @@ public class LightLocalization {
 				}
 
 				if (lockCount == 4){	// after 4 lines have been clocked the loop terminates and the robot stops moving
-					myPilot.stop();					
+					myPilot.stop();
 					anglesClocked = true;
 					break;
 				}
@@ -149,14 +154,14 @@ public class LightLocalization {
 		float newTheta = (float) (odo.getPose().getHeading()+newHeadingY);
 		float newX = (float) X;
 		float newY = (float) Y;
-		
+
 		Pose pos = new Pose(newX,newY,newTheta);
 
 		//set the odometer to reflect the new X, Y and theta values
 		odo.setPose(pos);
 
 
-		// when done travel to (0,0) and turn to 0 degrees	
+		// when done travel to (0,0) and turn to 0 degrees
 		myNav.goTo(0,0);
 		myNav.rotateTo(0);
 

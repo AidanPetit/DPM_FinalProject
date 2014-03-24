@@ -1,6 +1,6 @@
 /*	DPM Final Project - Main Class
  *  ECSE211-DPM	Group 08
- * 	Wei-Di Chang 260524917
+ *  Wei-Di Chang 260524917
  *  Aidan Petit
  */
 import lejos.nxt.*;
@@ -12,15 +12,15 @@ import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
 
 /**
- * 
+ *
  * Main class for the final project, execution starts from here.
- * 
- * 
+ *
+ *
  * @author Wei-Di
  * @version 1.0
  * @since 1.0
  */
- 
+
 public class FinalProject {
 	private static Team08Robot myBot;
 	private static LCDDisplay myLCD;
@@ -45,7 +45,7 @@ public class FinalProject {
 		if (buttonChoice == Button.ID_LEFT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
-			
+
 			USLocalization USLocalizer = new USLocalization(myBot);
 			USLocalizer.doLocalization();
 
@@ -53,15 +53,15 @@ public class FinalProject {
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
-			
+
 			Behavior b1=new Search(myBot);
 			Behavior b2=new Avoid(myBot);
 			Behavior[] bArray = {b1,b2};
 			Arbitrator arb = new Arbitrator(bArray);
 			arb.start();
-			
+
 			myBot.getPilot().travel(30);
-			
+
 			/*
 			Waypoint w1 = new Waypoint(0,30);
 			Waypoint w2 = new Waypoint(30,60);
@@ -75,10 +75,10 @@ public class FinalProject {
 			path.add(w3);
 			path.add(w4);
 			path.add(w5);
-				
+
 			myBot.getNav().followPath(path);
 			*/
-			
+
 		}
 		if(Button.waitForAnyPress() == Button.ID_ESCAPE) {
 			System.exit(0);

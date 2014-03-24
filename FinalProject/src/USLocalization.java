@@ -1,3 +1,8 @@
+/* DPM Final Project - UltraSonic Localization Class
+*  ECSE211-DPM	Group 08
+*  Wei-Di Chang 260524917
+*  Aidan Petit
+*/
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
@@ -5,11 +10,19 @@ import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
 
+/**
+*
+* Ultrasonic Localization class, which is used to determine initial 0 heading
+*
+* @author Aidan Petit
+* @version 1.0
+* @since 1.0
+*/
 
 public class USLocalization {
 	private Team08Robot myBot;
 
-	private OdometryPoseProvider myOdo;	
+	private OdometryPoseProvider myOdo;
 	private Navigator myNav;
 	private Driver myPilot;
 	private UltrasonicSensor localizationUS;
@@ -32,8 +45,8 @@ public class USLocalization {
 	public void doLocalization() {
 		/*
 		 * Localize the robot using Rising Edge Detection, assumes robot is in bottom left hand of board ie near (0.0)
-		 * 
-		 * 
+		 *
+		 *
 		 * Not tested
 		 */
 		double angleA, angleB;
@@ -72,7 +85,7 @@ public class USLocalization {
 			}
 
 		}
-		myPilot.stop();	
+		myPilot.stop();
 
 		angleA = (A1+A2)/2;
 
@@ -115,7 +128,7 @@ public class USLocalization {
 
 		// angleA is clockwise from angleB, so assume the average of the
 		// angles to the right of angleB is 45 degrees past 'north'
-		// 
+		//
 
 		//double startingAng = -(angleB-360-angleA)/2 + 45 - angleA;
 
@@ -132,7 +145,7 @@ public class USLocalization {
 
 		float X = curr.getX();
 		float Y = curr.getY();
-		float theta = (float) (curr.getHeading()+delta); 
+		float theta = (float) (curr.getHeading()+delta);
 
 		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
 

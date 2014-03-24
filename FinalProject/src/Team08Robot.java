@@ -1,4 +1,8 @@
-
+/* DPM Final Project - Main Class
+*  ECSE211-DPM	Group 08
+*  Wei-Di Chang 260524917
+*  Aidan Petit
+*/
 import lejos.nxt.*;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
@@ -14,18 +18,27 @@ import lejos.nxt.remote.RemoteNXT;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 
+/**
+*
+* Team08Robot Class gives access to all the sensors, navigation, odometry, etc.
+*
+*
+* @author Aidan
+* @version 1.0
+* @since 1.0
+*/
 
 public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
 	private Navigator nav;
-	//private NXTCommConnector connector; 
+	//private NXTCommConnector connector;
 	//private RemoteNXT slave;
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
 	private static double width=16;
-	
+
 	private static NXTRegulatedMotor leftMotor=Motor.A;
 	private static NXTRegulatedMotor rightMotor=Motor.B;
 
@@ -44,7 +57,7 @@ public class Team08Robot {
 		this.pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
 		this.odometer=new OdometryPoseProvider(pilot);
 		this.nav=new Navigator(pilot, odometer);
-		
+
 		/*
 		try{
 			this.connector = Bluetooth.getConnector();
@@ -58,8 +71,8 @@ public class Team08Robot {
 			  Button.waitForAnyPress();
 			  System.exit(0);
 		}
-		
-		
+
+
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
 		*/
@@ -67,45 +80,44 @@ public class Team08Robot {
 		//this.frontCS = new ColorSensor(SensorPort.S2);
 		//this.rearCS = new ColorSensor(SensorPort.S3);
 	}
-	
+
 	public OdometryPoseProvider getOdo(){
 		return this.odometer;
 	}
-	
+
 	public Navigator getNav(){
 		return this.nav;
 	}
-	
+
 	public Driver getPilot(){
 		return this.pilot;
 	}
-	
+
 	public UltrasonicSensor getFrontUS(){
 		return this.frontUS;
 	}
-	
+
 	public ColorSensor getRearCS() {
 		return this.rearCS;
 	}
-	
+
 	public ColorSensor getFrontCS() {
 		return this.frontCS;
 	}
-	
+
 	public RemoteMotor getLeftTrack() {
 		return this.leftTrack;
 	}
-	
+
 	public RemoteMotor getRightTrack() {
 		return this.rightTrack;
 	}
-	
+
 	public NXTRegulatedMotor getLeftMotor() {
 		return leftMotor;
 	}
-	
+
 	public NXTRegulatedMotor getRightMotor() {
 		return rightMotor;
 	}
 }
-
