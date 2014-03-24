@@ -2,6 +2,7 @@ import lejos.robotics.subsumption.Behavior;
 
 
 public class Avoid implements Behavior{
+	private static final float MAP_MIDPOINT = 90;
 	public static boolean suppressed;
 	private static Team08Robot myBot;
 
@@ -19,7 +20,14 @@ public class Avoid implements Behavior{
 	@Override
 	public void action() {
 		suppressed=false;
-		
+		if(myBot.getOdo().getPose().getX()>MAP_MIDPOINT)
+		{
+//			myBot.getPilot().
+		}
+		else
+		{
+			
+		}
 		
 	}
 
