@@ -8,6 +8,8 @@ import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.pathfinding.Path;
+import lejos.robotics.subsumption.Arbitrator;
+import lejos.robotics.subsumption.Behavior;
 
 /**
  * 
@@ -32,8 +34,8 @@ public class FinalProject {
 
 			LCD.drawString("< Left   | Right >", 0, 0);
 			LCD.drawString("         |    ", 0, 1);
-			LCD.drawString("   US    | drive ", 0, 2);
-			LCD.drawString("Localize | ", 0, 3);
+			LCD.drawString("     US  | Behavior ", 0, 2);
+			LCD.drawString("Localize | Test", 0, 3);
 
 			buttonChoice = Button.waitForAnyPress();
 
@@ -51,6 +53,12 @@ public class FinalProject {
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
+			
+			Behavior b1=new Search(myBot);
+			Behavior b2=new Avoid(myBot);
+			Behavior[] bArray = {b1,b2};
+			Arbitrator arb = new Arbitrator(bArray);
+			arb.start();
 			
 			myBot.getPilot().travel(30);
 			
