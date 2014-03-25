@@ -3,18 +3,18 @@
 *  Wei-Di Chang 260524917
 *  Aidan Petit
 */
+import java.io.IOException;
+
 import lejos.nxt.*;
-import lejos.nxt.Motor;
-import lejos.nxt.NXTRegulatedMotor;
-import lejos.nxt.SensorPort;
-import lejos.nxt.UltrasonicSensor;
 import lejos.nxt.comm.NXTCommConnector;
 import lejos.nxt.comm.NXTConnection;
+import lejos.nxt.comm.RS485;
 import lejos.nxt.comm.USB;
 import lejos.nxt.comm.USBConnection;
 import lejos.nxt.remote.NXTComm;
 import lejos.nxt.remote.RemoteMotor;
 import lejos.nxt.remote.RemoteNXT;
+import lejos.nxt.remote.RemoteSensorPort;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
 
@@ -32,8 +32,8 @@ public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
 	private Navigator nav;
-	//private NXTCommConnector connector;
-	//private RemoteNXT slave;
+	private NXTCommConnector connector;
+	private RemoteNXT slave;
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
@@ -48,7 +48,7 @@ public class Team08Robot {
 
 	private UltrasonicSensor frontUS;
 
-	private ColorSensor frontCS;		//for object detection
+	private RemoteSensorPort frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
 	private ColorSensor rearCS;			//for localization
 
 
@@ -58,10 +58,18 @@ public class Team08Robot {
 		this.odometer=new OdometryPoseProvider(pilot);
 		this.nav=new Navigator(pilot, odometer);
 
-		/*
+		//initialize connection with slave
+		LCD.clearDisplay();
+        LCD.drawString("Connecting...",0,0);
 		try{
-			this.connector = Bluetooth.getConnector();
+			this.connector = RS485.getConnector();
 			this.slave = new RemoteNXT("NXT", connector);  //name needs to be changed to 'TEAM08-2'
+			LCD.clear();
+            LCD.drawString("Connected",0,0);
+            try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+			}
 		}
 		catch (IOException ioe) {
 			  LCD.clear();
@@ -69,13 +77,15 @@ public class Team08Robot {
 			  LCD.drawString(" Failed ", 0, 1);
 
 			  Button.waitForAnyPress();
-			  System.exit(0);
+			  System.exit(1);
 		}
 
-
+		//Initialize slave motors and sensors
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
-		*/
+		this.frontCS= slave.S1;
+		
+		//Initialize master sensors
 		this.frontUS = new UltrasonicSensor(SensorPort.S1);
 		//this.frontCS = new ColorSensor(SensorPort.S2);
 		//this.rearCS = new ColorSensor(SensorPort.S3);
@@ -101,7 +111,7 @@ public class Team08Robot {
 		return this.rearCS;
 	}
 
-	public ColorSensor getFrontCS() {
+	public RemoteSensorPort getFrontCS() {
 		return this.frontCS;
 	}
 
