@@ -32,15 +32,15 @@ public class FinalProject {
 
 	public static void main(String[] args)  throws Exception{
 		int buttonChoice;
+		myBot = new Team08Robot();
 		Team08Robot myBot = new Team08Robot();
-
 
 		do {
 			LCD.clear();
 
 			LCD.drawString("< Left   | Right >", 0, 0);
 			LCD.drawString("         |    ", 0, 1);
-			LCD.drawString("     US  | Behavior ", 0, 2);
+			LCD.drawString("         | Behavior ", 0, 2);
 			LCD.drawString("Localize | Test", 0, 3);
 
 			buttonChoice = Button.waitForAnyPress();
@@ -51,6 +51,12 @@ public class FinalProject {
 		if (buttonChoice == Button.ID_LEFT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
+			
+			//USLocalization myUSLocalizer = new USLocalization(myBot);
+			//myUSLocalizer.doLocalization();
+			
+			LightLocalization myLightLocalizer = new LightLocalization(myBot);
+			myLightLocalizer.doLocalization();
 
 			USLocalization USLocalizer = new USLocalization(myBot);
 			USLocalizer.doLocalization();
