@@ -48,16 +48,12 @@ public class Team08Robot {
 
 	private UltrasonicSensor frontUS;
 
-<<<<<<< HEAD
-	private ColorSensor frontCS;		//for object detection
 	
 	private ColorSensor rightCS;		//for localization and odometer correction
 	private ColorSensor leftCS;
-=======
 	private RemoteSensorPort frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
 	private ColorSensor rearCS;			//for localization
 
->>>>>>> refs/remotes/origin/experimental
 
 
 	public Team08Robot(){
@@ -114,7 +110,6 @@ public class Team08Robot {
 	public UltrasonicSensor getFrontUS(){
 		return this.frontUS;
 	}
-<<<<<<< HEAD
 	
 	public ColorSensor getLeftCS() {
 		return this.leftCS;
@@ -122,11 +117,10 @@ public class Team08Robot {
 
 	public ColorSensor getRightCS() {
 		return this.rightCS;
-=======
+	}
 
 	public ColorSensor getRearCS() {
 		return this.rearCS;
->>>>>>> refs/remotes/origin/experimental
 	}
 
 	public RemoteSensorPort getFrontCS() {
