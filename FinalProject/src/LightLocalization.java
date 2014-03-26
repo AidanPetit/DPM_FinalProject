@@ -63,21 +63,15 @@ public class LightLocalization {
 
 		boolean anglesClocked = false;
 		int lockCount = 0;
-
-		// need to figure out how to find desired position 
-		// for now this is the coordinates used for team24 in lab 4 
-		myPilot.setRotateSpeed(75);
-		// need to figure out how to find desired position
-		// for now this is the coordinates used for team24 in lab 4
-
-		myNav.rotateTo(180);
-		myNav.goTo(7,8);
-		myNav.rotateTo(90);
-
 		double[] xAngles = new double[2];	//holds the two angles when the light sensor detects the X axis
 		double[] yAngles = new double[2];	//holds the two angles for Y axis when sensor detects the line
 		double xAxisIntersectAngle = 0; 	//holds angle when lightsensor hits negative X axis
 
+ 
+		myPilot.setRotateSpeed(60);
+		myNav.rotateTo(180);
+		
+		
 		// start rotating and clock all 4 gridlines
 		//rotate in place to clock angles
 		myCS.setFloodlight(true);
@@ -86,7 +80,6 @@ public class LightLocalization {
 
 		while(!anglesClocked){ //keep rotating until all four angles have been clocked
 
-			Pose currentPose = odo.getPose();
 			LCD.drawString("count: "+ lockCount, 0, 6); //output for debugging, might need to disable LCDDisplay to use
 
 			/*
@@ -97,13 +90,14 @@ public class LightLocalization {
 			 * Juan and I never implemented this
 			 */
 
-			detectLine();
 			lineLocked = false;
+			detectLine();
 
-			if (onLine && !lineLocked) {	
-				double currentTheta = currentPose.getHeading();	
+			if (onLine && !lineLocked) {
 
-				if (lockCount==0){ // negative x axis
+				double currentTheta = odo.getPose().getHeading();	
+
+				if (lockCount==0){ // positive x axis
 					xAngles[0] = currentTheta;
 					lockCount++;
 					lineLocked = true;
@@ -201,12 +195,8 @@ public class LightLocalization {
 
 
 	public void detectLine(){
-		int dPrev = 0;
-		int dNow;
 
-		int xLast, xNext;
-
-		xLast = myCS.getRawLightValue();
+		int xNext;
 
 		while(true){
 			xNext = myCS.getRawLightValue();
