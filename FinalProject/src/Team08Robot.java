@@ -37,6 +37,14 @@ public class Team08Robot {
 	private boolean tooClose;
 	private boolean flagCaptured;
 	private boolean flagRecognized;
+	private boolean atFlagZone;
+	private boolean atDropZone;
+	
+	private int flagColor;
+	private int redZoneLowerLeft;
+	private int redZoneUpperRight;
+	private int dropZoneLowerLeft;
+	private int dropZoneUpperRight;
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
@@ -182,5 +190,61 @@ public class Team08Robot {
 
 	public NXTRegulatedMotor getRightMotor() {
 		return rightMotor;
+	}
+
+	public int getFlagColor() {
+		return flagColor;
+	}
+
+	public void setFlagColor(int flagColor) {
+		this.flagColor = flagColor;
+	}
+
+	public int getRedZoneLowerLeft() {
+		return redZoneLowerLeft;
+	}
+
+	public void setRedZoneLowerLeft(int redZoneLowerLeft) {
+		this.redZoneLowerLeft = redZoneLowerLeft;
+	}
+
+	public int getRedZoneUpperRight() {
+		return redZoneUpperRight;
+	}
+
+	public void setRedZoneUpperRight(int redZoneUpperRight) {
+		this.redZoneUpperRight = redZoneUpperRight;
+	}
+
+	public int getDropZoneLowerLeft() {
+		return dropZoneLowerLeft;
+	}
+
+	public void setDropZoneLowerLeft(int dropZoneLowerLeft) {
+		this.dropZoneLowerLeft = dropZoneLowerLeft;
+	}
+
+	public int getDropZoneUpperRight() {
+		return dropZoneUpperRight;
+	}
+
+	public void setDropZoneUpperRight(int dropZoneUpperRight) {
+		this.dropZoneUpperRight = dropZoneUpperRight;
+	}
+
+	public boolean isAtFlagZone() {
+		return atFlagZone;
+	}
+
+	public void setAtFlagZone(boolean atFlagZone) {
+		this.atFlagZone = atFlagZone;
+	}
+
+	public boolean isAtDropZone() {
+		return atDropZone;
+	}
+
+	public void setAtDropZone(boolean atDropZone) {
+		this.atDropZone = atDropZone;
 	}
 }
