@@ -40,7 +40,7 @@ public class Team08Robot {
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
-	private static double width=16;
+	private static double width=15.5;
 
 	private static NXTRegulatedMotor leftMotor=Motor.A;
 	private static NXTRegulatedMotor rightMotor=Motor.B;
@@ -52,8 +52,9 @@ public class Team08Robot {
 	private UltrasonicSensor frontUS;
 
 	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
-	private ColorSensor rearCS;			//for localization
-
+	
+	private ColorSensor leftCS;
+	private ColorSensor rightCS;
 
 
 	public Team08Robot(){
@@ -93,15 +94,12 @@ public class Team08Robot {
 		this.topTouch=new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
 
-		
-//		this.frontCS=new RemoteSensorPort(slave.S1,); // int id as second argument ?
-//		ColorSensor color=new ColorSensor();
-		
 		//Initialize master sensors
-		this.frontCS= new ColorSensor(SensorPort.S2);
 
-		//this.frontCS = new ColorSensor(SensorPort.S2);
-		//this.rearCS = new ColorSensor(SensorPort.S3);
+		this.leftCS = new ColorSensor(SensorPort.S1);
+		this.rightCS = new ColorSensor(SensorPort.S2);
+		this.frontCS= new ColorSensor(SensorPort.S3);
+
 		this.leftTrack.stop();
 		this.rightTrack.stop();
 		
@@ -132,6 +130,8 @@ public class Team08Robot {
 	public void setTooClose(boolean tooClose) {
 		this.tooClose = tooClose;
 	}
+	
+	//Class variable getters
 
 	public OdometryPoseProvider getOdo(){
 		return this.odometer;
@@ -149,9 +149,15 @@ public class Team08Robot {
 		return this.frontUS;
 	}
 
-	public ColorSensor getRearCS() {
-		return this.rearCS;
+	public ColorSensor getLeftCS() {
+		return this.leftCS;
 	}
+
+
+	public ColorSensor getRightCS() {
+		return this.rightCS;
+	}
+
 
 	public ColorSensor getFrontCS() {
 		return this.frontCS;

@@ -54,7 +54,9 @@ public class FinalProject {
 
 			USLocalization USLocalizer = new USLocalization(myBot);
 			USLocalizer.doLocalization();
-
+			
+			LightLocalization LSLocalizer = new LightLocalization(myBot);
+			LSLocalizer.doLocalization();
 		}
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
@@ -68,11 +70,6 @@ public class FinalProject {
 			Arbitrator arb = new Arbitrator(behaviorList);
 			arb.start();
 
-
-//			 if(myBot.getTopTouch().isPressed())
-//			 {
-//				 Sound.beep();
-//			 }
 
 			/*
 			Waypoint w1 = new Waypoint(0,30);
