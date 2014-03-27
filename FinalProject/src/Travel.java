@@ -8,7 +8,7 @@ import lejos.robotics.subsumption.Behavior;
 
 /**
  *
- * Search behavior class, which takes care of finding the right block, has highest priority.
+ * Search behavior class, first behavior in action, has lowest priority.
  *
  *
  * @author Wei-Di Chang
@@ -16,26 +16,44 @@ import lejos.robotics.subsumption.Behavior;
  * @since 1.0
  */
 
-public class Search implements Behavior{
+public class Travel implements Behavior{
 	public static boolean suppressed;
 	private static Team08Robot myBot;
 
 	//Constructor
-	public Search(Team08Robot robot) {
+	public Travel(Team08Robot robot) {
 		myBot=robot;
 	}
 
 	@Override
 	public boolean takeControl() {
-		
+		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public void action() {
 		suppressed=false;
-		
-		
+		myBot.getNav().goTo(60, 60);
+		while(!suppressed)
+		{
+			Sound.beep();
+			myBot.getFrontUS().ping();
+			try {
+				Thread.sleep(50); 
+			}	
+			catch (Exception e) { 
+
+			}
+			if(myBot.getFrontUS().getDistance()<30)
+			{
+				myBot.setTooClose(true);
+
+			}
+			else{
+				myBot.setTooClose(false);
+			}
+		}
 
 	}
 

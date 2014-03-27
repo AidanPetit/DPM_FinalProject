@@ -9,8 +9,6 @@ import lejos.nxt.*;
 import lejos.nxt.comm.NXTCommConnector;
 import lejos.nxt.comm.NXTConnection;
 import lejos.nxt.comm.RS485;
-import lejos.nxt.comm.USB;
-import lejos.nxt.comm.USBConnection;
 import lejos.nxt.remote.NXTComm;
 import lejos.nxt.remote.RemoteMotor;
 import lejos.nxt.remote.RemoteNXT;
@@ -34,6 +32,11 @@ public class Team08Robot {
 	private Navigator nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
+	
+	//Behavior booleans
+	private boolean tooClose;
+	private boolean flagCaptured;
+	private boolean flagRecognized;
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
@@ -45,10 +48,10 @@ public class Team08Robot {
 	private RemoteMotor leftTrack;
 	private RemoteMotor rightTrack;
 
-
+	private TouchSensor topTouch;
 	private UltrasonicSensor frontUS;
 
-	private RemoteSensorPort frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
+	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
 	private ColorSensor rearCS;			//for localization
 
 
@@ -57,7 +60,11 @@ public class Team08Robot {
 		this.pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
 		this.odometer=new OdometryPoseProvider(pilot);
 		this.nav=new Navigator(pilot, odometer);
-
+		
+		//Initialize all booleans
+		this.tooClose=false;
+		this.setFlagCaptured(false);
+		
 		//initialize connection with slave
 		LCD.clearDisplay();
         LCD.drawString("Connecting...",0,0);
@@ -83,12 +90,47 @@ public class Team08Robot {
 		//Initialize slave motors and sensors
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
-		this.frontCS= slave.S1;
+		this.topTouch=new TouchSensor(slave.S1);
+		this.frontUS = new UltrasonicSensor(slave.S2);
+
+		
+//		this.frontCS=new RemoteSensorPort(slave.S1,); // int id as second argument ?
+//		ColorSensor color=new ColorSensor();
 		
 		//Initialize master sensors
-		this.frontUS = new UltrasonicSensor(SensorPort.S1);
+		this.frontCS= new ColorSensor(SensorPort.S2);
+
 		//this.frontCS = new ColorSensor(SensorPort.S2);
 		//this.rearCS = new ColorSensor(SensorPort.S3);
+		this.leftTrack.stop();
+		this.rightTrack.stop();
+		
+	}
+
+	//Boolean getters and setters
+
+	public boolean getFlagCaptured() {
+		return flagCaptured;
+	}
+
+	public void setFlagCaptured(boolean flagCaptured) {
+		this.flagCaptured = flagCaptured;
+	}
+
+	public boolean getFlagRecognized() {
+		return flagRecognized;
+	}
+	
+	public void setFlagRecognized(boolean flagRecognized) {
+		this.flagRecognized = flagRecognized;
+	}
+
+	public boolean isTooClose() {
+		return tooClose;
+	}
+
+	public void setTooClose(boolean tooClose) {
+		this.tooClose = tooClose;
 	}
 
 	public OdometryPoseProvider getOdo(){
@@ -111,9 +153,14 @@ public class Team08Robot {
 		return this.rearCS;
 	}
 
-	public RemoteSensorPort getFrontCS() {
+	public ColorSensor getFrontCS() {
 		return this.frontCS;
 	}
+
+	public TouchSensor getTopTouch() {
+		return this.topTouch;
+	}
+
 
 	public RemoteMotor getLeftTrack() {
 		return this.leftTrack;

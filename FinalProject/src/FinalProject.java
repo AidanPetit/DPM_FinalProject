@@ -32,8 +32,8 @@ public class FinalProject {
 
 	public static void main(String[] args)  throws Exception{
 		int buttonChoice;
-		Team08Robot myBot = new Team08Robot();
-
+		Button.waitForAnyPress();
+		myBot = new Team08Robot();
 
 		do {
 			LCD.clear();
@@ -59,13 +59,20 @@ public class FinalProject {
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
-			Behavior b1=new Search(myBot);
+			Behavior b1=new Travel(myBot);
 			Behavior b2=new Avoid(myBot);
-			Behavior[] bArray = {b1,b2};
-			Arbitrator arb = new Arbitrator(bArray);
+			Behavior b3=new Capture(myBot);
+			Behavior b4=new Search(myBot);
+
+			Behavior[] behaviorList = {b1,b2,b3,b4};
+			Arbitrator arb = new Arbitrator(behaviorList);
 			arb.start();
 
-			// myBot.getPilot().travel(30);
+
+//			 if(myBot.getTopTouch().isPressed())
+//			 {
+//				 Sound.beep();
+//			 }
 
 			/*
 			Waypoint w1 = new Waypoint(0,30);

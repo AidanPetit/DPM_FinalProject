@@ -1,14 +1,15 @@
-/* DPM Final Project - Search Class
+/*	DPM Final Project - Avoid Behavior Class
  *  ECSE211-DPM	Group 08
  *  Wei-Di Chang 260524917
  *  Aidan Petit
  */
+
 import lejos.nxt.Sound;
 import lejos.robotics.subsumption.Behavior;
 
 /**
  *
- * Search behavior class, which takes care of finding the right block, has highest priority.
+ * Capture behavior class, which kicks in when the flag has been found, second highest priority class.
  *
  *
  * @author Wei-Di Chang
@@ -16,26 +17,32 @@ import lejos.robotics.subsumption.Behavior;
  * @since 1.0
  */
 
-public class Search implements Behavior{
+public class Capture implements Behavior{
 	public static boolean suppressed;
 	private static Team08Robot myBot;
 
 	//Constructor
-	public Search(Team08Robot robot) {
+	public Capture(Team08Robot robot) {
 		myBot=robot;
 	}
 
+	//takeControl defines (returns) the conditions for which the behavior should take over
 	@Override
 	public boolean takeControl() {
-		
-		return true;
+		return (myBot.getFlagRecognized());
 	}
 
 	@Override
 	public void action() {
 		suppressed=false;
-		
-		
+		while(!suppressed&&!myBot.getFlagCaptured())
+		{
+			myBot.getLeftTrack().forward();
+			myBot.getRightTrack().backward();
+		}
+
+
+
 
 	}
 
