@@ -4,7 +4,6 @@
  *  Aidan Petit
  */
 
-import lejos.nxt.Sound;
 import lejos.robotics.subsumption.Behavior;
 
 /**
@@ -29,18 +28,23 @@ public class Capture implements Behavior{
 	//takeControl defines (returns) the conditions for which the behavior should take over
 	@Override
 	public boolean takeControl() {
-		return (myBot.getFlagRecognized());
+		return myBot.getFlagRecognized();
 	}
 
 	@Override
 	public void action() {
 		suppressed=false;
+		myBot.getLeftTrack().setPower(+100);
+		myBot.getRightTrack().setPower(+100);
+		myBot.getLeftTrack().setAcceleration(999999);	//Making sure acceleration is at maximum
+		myBot.getRightTrack().setAcceleration(999999);
+
 		while(!suppressed&&!myBot.getFlagCaptured())
 		{
 			myBot.getLeftTrack().forward();
-			myBot.getRightTrack().backward();
+			myBot.getRightTrack().forward();
 		}
-
+		
 
 
 

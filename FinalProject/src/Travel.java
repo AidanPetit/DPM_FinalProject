@@ -4,6 +4,7 @@
  *  Aidan Petit
  */
 import lejos.nxt.Sound;
+import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.subsumption.Behavior;
 
 /**
@@ -19,7 +20,7 @@ import lejos.robotics.subsumption.Behavior;
 public class Travel implements Behavior{
 	public static boolean suppressed;
 	private static Team08Robot myBot;
-
+	
 	//Constructor
 	public Travel(Team08Robot robot) {
 		myBot=robot;
@@ -27,35 +28,21 @@ public class Travel implements Behavior{
 
 	@Override
 	public boolean takeControl() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public void action() {
-		suppressed=false;
-		myBot.getNav().goTo(60, 60);
-		while(!suppressed)
+		suppressed=false;		
+		myBot.getNav().followPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(),myBot.getObjectiveWaypoint()));
+		if(myBot.getNav().pathCompleted())
 		{
-			Sound.beep();
-			myBot.getFrontUS().ping();
-			try {
-				Thread.sleep(50); 
-			}	
-			catch (Exception e) { 
-
-			}
-			if(myBot.getFrontUS().getDistance()<30)
-			{
-				myBot.setTooClose(true);
-
-			}
-			else{
-				myBot.setTooClose(false);
-			}
+			myBot.setAtFlagZone(true);
 		}
 
 	}
+	
+
 
 	@Override
 	public void suppress() {

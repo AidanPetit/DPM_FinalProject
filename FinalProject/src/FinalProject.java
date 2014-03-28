@@ -5,7 +5,13 @@
  */
 import java.io.*;
 
+import bluetooth.BluetoothConnection;
+import bluetooth.PlayerRole;
+import bluetooth.StartCorner;
+import bluetooth.Transmission;
 import lejos.nxt.*;
+import lejos.robotics.navigation.Pose;
+import lejos.robotics.navigation.Waypoint;
 //import lejos.robotics.localization.OdometryPoseProvider;
 //import lejos.robotics.navigation.Navigator;
 //import lejos.robotics.navigation.Waypoint;
@@ -14,7 +20,6 @@ import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
 import lejos.nxt.comm.*;
 import lejos.nxt.remote.*;
-import lejos.util.TextMenu;
 
 /**
  *
@@ -56,42 +61,29 @@ public class FinalProject {
 			USLocalizer.doLocalization();
 
 		}
+		
 		else if(buttonChoice == Button.ID_RIGHT) {
+			
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
+			myBot.getPilot().setTravelSpeed(25);
+			myBot.getPilot().setRotateSpeed(60);
+			
 			Behavior b1=new Travel(myBot);
 			Behavior b2=new Avoid(myBot);
 			Behavior b3=new Capture(myBot);
 			Behavior b4=new Search(myBot);
 
+			myBot.setFlagRecognized(true);
 			Behavior[] behaviorList = {b1,b2,b3,b4};
 			Arbitrator arb = new Arbitrator(behaviorList);
+			
 			arb.start();
-
-
-//			 if(myBot.getTopTouch().isPressed())
-//			 {
-//				 Sound.beep();
-//			 }
-
-			/*
-			Waypoint w1 = new Waypoint(0,30);
-			Waypoint w2 = new Waypoint(30,60);
-			Waypoint w3 = new Waypoint(60,90);
-			Waypoint w4 = new Waypoint(45,45);
-			Waypoint w5 = new Waypoint(0,0);
-
-			Path path = new Path();
-			path.add(w1);
-			path.add(w2);
-			path.add(w3);
-			path.add(w4);
-			path.add(w5);
-
-			myBot.getNav().followPath(path);
-			 */
 
 		}
 
+
 	}
+
 }
+

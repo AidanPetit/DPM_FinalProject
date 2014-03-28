@@ -3,9 +3,16 @@
  *  Wei-Di Chang 260524917
  *  Aidan Petit
  */
+
+import lejos.nxt.Sound;
 import lejos.robotics.localization.PoseProvider;
+import lejos.robotics.mapping.NavEventListener;
+import lejos.robotics.mapping.NavigationModel.NavEvent;
 import lejos.robotics.navigation.MoveController;
 import lejos.robotics.navigation.Navigator;
+import lejos.robotics.navigation.Pose;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 
 /**
  *
@@ -25,7 +32,19 @@ public class Navigation extends Navigator {
 	public Navigation(MoveController pilot, PoseProvider poseProvider) {
 		super(pilot, poseProvider);
 		// TODO Auto-generated constructor stub
+		
+	}
+	
+	public Path PathMaker(Pose start, Waypoint end){
+		Path generatedPath = new Path();
+		generatedPath.add(new Waypoint(start.getX(),end.getY()));
+		generatedPath.add(new Waypoint(end.getX(),end.getY()));
+		return generatedPath;
+
 	}
 
+
+
+	
 
 }

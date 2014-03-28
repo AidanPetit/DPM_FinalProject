@@ -29,7 +29,7 @@ import lejos.robotics.navigation.DifferentialPilot;
 public class Driver extends DifferentialPilot{
 	private final double LEFTWHEELDIAMETER=4.32;
 	private final double RIGHTWHEELDIAMETER=4.32;
-	private final double TRACKWIDTH=12.1;
+	private final double TRACKWIDTH=16;
 
 
 

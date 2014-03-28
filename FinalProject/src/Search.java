@@ -28,13 +28,13 @@ public class Search implements Behavior{
 	@Override
 	public boolean takeControl() {
 		
-		return true;
+		return myBot.isAtFlagZone();
 	}
 
 	@Override
 	public void action() {
 		suppressed=false;
-		
+		Sound.buzz();
 		
 
 	}
