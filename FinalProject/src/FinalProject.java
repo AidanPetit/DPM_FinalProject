@@ -51,12 +51,20 @@ public class FinalProject {
 		if (buttonChoice == Button.ID_LEFT) {
 			LCD.clearDisplay();
 			myLCD = new LCDDisplay(myBot.getOdo());
-
-			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization();
 			
-			LightLocalization LSLocalizer = new LightLocalization(myBot);
-			LSLocalizer.doLocalization();
+			myBot.setAtFlagZone(true);
+			myBot.setFlagColor(2);	//red
+
+			Behavior search=new Search(myBot);
+			Behavior[] behaviorList = {search};
+			Arbitrator arb = new Arbitrator(behaviorList);
+			arb.start();
+
+			//			USLocalization USLocalizer = new USLocalization(myBot);
+			//			USLocalizer.doLocalization();
+			//			
+			//			LightLocalization LSLocalizer = new LightLocalization(myBot);
+			//			LSLocalizer.doLocalization();
 		}
 		else if(buttonChoice == Button.ID_RIGHT) {
 			LCD.clearDisplay();

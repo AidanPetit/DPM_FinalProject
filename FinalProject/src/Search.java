@@ -4,9 +4,11 @@
  *  Aidan Petit
  */
 import lejos.nxt.ColorSensor;
+import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.robotics.Color;
+import lejos.robotics.navigation.Navigator;
 import lejos.robotics.subsumption.Behavior;
 
 /**
@@ -26,9 +28,18 @@ public class Search implements Behavior{
 	private ColorSensor myCS;
 	private UltrasonicSensor myUS;
 	private Driver myPilot;
+	private Navigator myNav;
 
 	private double SLOW_SPEED = 20;
+	private double ROTATE_SPEED = 75;
 
+	private int startingAngle = 180;
+	private int objectCount = 0;
+
+	private boolean Achecked = false;
+	private boolean Bchecked = false;
+
+	private double A1, A2, B1, B2;
 
 	//Constructor
 	public Search(Team08Robot robot) {
@@ -37,6 +48,7 @@ public class Search implements Behavior{
 		this.myCS = myBot.getFrontCS();
 		this.myUS = myBot.getFrontUS();
 		this.myPilot = myBot.getPilot();
+		this.myNav = myBot.getNav();
 	}
 
 	@Override
@@ -48,28 +60,106 @@ public class Search implements Behavior{
 	public void action() {
 		suppressed=false;
 
-		int startingAngle = 180;
-
 		while(!suppressed){
-			myPilot.rotate(startingAngle);
+
+
+			myPilot.setRotateSpeed(ROTATE_SPEED);
+			myNav.rotateTo(startingAngle);
+
+			myPilot.rotateRight();
 
 			int distance = getFilteredData();
-			if(distance < 30){
-				myPilot.setTravelSpeed(SLOW_SPEED);
-				myPilot.travel(distance);
+			
+			boolean obj1 = false;
 
-				if(identifyBlock() == flagColor){
-					myBot.setFlagRecognized(true);
+			while(objectCount==0){
+				distance = getFilteredData();
+				LCD.clear(5);
+				LCD.drawString("US: "+ distance, 0, 5);
+
+				if(distance < 30){
+					A1 = myBot.getOdo().getPose().getHeading();
+					obj1 = true;
 				}
-				else{
-					myPilot.travel(-distance);
+				if(distance > 30 && obj1){
+					A2 = myBot.getOdo().getPose().getHeading();
+					objectCount++;
 				}
-			}		
-			startingAngle = startingAngle + 5;
+			}
+
+			boolean obj2 = false;
+
+			while(objectCount==1){
+				distance = getFilteredData();
+				LCD.clear(5);
+				LCD.drawString("US: "+ distance, 0, 5);
+				if(distance < 30){
+					B1 = myBot.getOdo().getPose().getHeading();
+					obj2 = true;
+				}
+				if(distance > 30 && obj2){
+					B2 = myBot.getOdo().getPose().getHeading();
+					objectCount++;
+				}
+			}
+			if(objectCount==2){
+				double A = (A1+A2)/2;
+				double B = (B1+B2)/2;
+				while(!Achecked){
+
+					myNav.rotateTo(A);
+					int dist = getFilteredData();
+					myPilot.setTravelSpeed(SLOW_SPEED);
+					myPilot.travel(dist);
+
+					if(identifyBlock() == flagColor){
+						Sound.buzz();
+						myBot.setFlagRecognized(true);
+
+					}
+					else{
+						myPilot.travel(-dist);
+					}
+					Achecked=true;
+				}
+				if(Achecked && !Bchecked){
+					
+					myNav.rotateTo(B);
+					int dist = getFilteredData();
+					myPilot.setTravelSpeed(SLOW_SPEED);
+					myPilot.travel(dist);
+
+					if(identifyBlock() == flagColor){
+						Sound.buzz();
+						myBot.setFlagRecognized(true);
+					}
+					else{
+						myPilot.travel(-dist);
+					}
+					Bchecked=true;
+				}
+			}
 		}
-
-
 	}
+
+
+	//			if(distance < 30){
+	//				myPilot.setTravelSpeed(SLOW_SPEED);
+	//				myPilot.travel(distance);
+	//
+	//				if(identifyBlock() == flagColor){
+	//					Sound.buzz();
+	//					myBot.setFlagRecognized(true);
+	//
+	//				}
+	//				else{
+	//					myPilot.travel(-distance);
+	//				}
+	//			}		
+	//			startingAngle = startingAngle - 10;
+	//		}
+
+
 
 	private int identifyBlock() {
 		/*
@@ -101,14 +191,15 @@ public class Search implements Behavior{
 
 			double ratioRB = intensityR/intensityB;
 			double ratioRG = intensityR/intensityG;
-
-			double ratioGR = intensityG/intensityR;
 			double ratioGB = intensityG/intensityB;
 
-			double ratioBR = intensityB/intensityR;
-			double ratioBG = intensityB/intensityG;
+			//			double ratioGR = intensityG/intensityR;
+			//
+			//			double ratioBR = intensityB/intensityR;
+			//			double ratioBG = intensityB/intensityG;
 
 			if(myCS.getColorID()!=7){
+
 
 				if (intensityG > intensityB && intensityB > intensityR){
 					return 1;
@@ -116,20 +207,18 @@ public class Search implements Behavior{
 				if(ratioRB > 3 && ratioRG > 3){
 					return 2;
 				}
-				if(ratioRB > 3 && ratioRG <2){
+				if(ratioRB > 2 && ratioRG <2 && ratioGB > 2){
 					return 3;
 				}
-				if (intensityG > intensityR && intensityR > intensityB){
+				if(intensityR > 150 && intensityG > 150 & intensityB > 200){
 					return 4;
 				}
-				if(intensityB > (intensityG+intensityR)){
+				if(intensityB > intensityR && intensityB > intensityG){
 					return 5;
 				}
 			}
 			try { Thread.sleep(50); } catch (InterruptedException e) {}
-
 		}
-
 	}
 
 
