@@ -31,10 +31,11 @@ public class Search implements Behavior{
 	private Navigator myNav;
 
 	private double SLOW_SPEED = 20;
-	private double ROTATE_SPEED = 75;
+	private double ROTATE_SPEED = 25;
 
 	private int startingAngle = 180;
 	private int objectCount = 0;
+	private int THRESHOLD = 40;
 
 	private boolean Achecked = false;
 	private boolean Bchecked = false;
@@ -53,7 +54,7 @@ public class Search implements Behavior{
 
 	@Override
 	public boolean takeControl() {
-		return myBot.isAtFlagZone();
+		return (myBot.isAtFlagZone() && !myBot.getFlagRecognized());
 	}
 
 	@Override
@@ -77,12 +78,15 @@ public class Search implements Behavior{
 				LCD.clear(5);
 				LCD.drawString("US: "+ distance, 0, 5);
 
-				if(distance < 30){
+				if(distance < THRESHOLD){
 					A1 = myBot.getOdo().getPose().getHeading();
+					Sound.beep();
+
 					obj1 = true;
 				}
-				if(distance > 30 && obj1){
+				if(distance > THRESHOLD && obj1){
 					A2 = myBot.getOdo().getPose().getHeading();
+					Sound.buzz();
 					objectCount++;
 				}
 			}
@@ -93,27 +97,31 @@ public class Search implements Behavior{
 				distance = getFilteredData();
 				LCD.clear(5);
 				LCD.drawString("US: "+ distance, 0, 5);
-				if(distance < 30){
+				if(distance < THRESHOLD){
 					B1 = myBot.getOdo().getPose().getHeading();
+					Sound.beep();
 					obj2 = true;
 				}
-				if(distance > 30 && obj2){
+				if(distance > THRESHOLD && obj2){
 					B2 = myBot.getOdo().getPose().getHeading();
+					Sound.buzz();
 					objectCount++;
 				}
 			}
+			
 			if(objectCount==2){
 				double A = (A1+A2)/2;
 				double B = (B1+B2)/2;
-				while(!Achecked){
+				
+				myNav.rotateTo(A);
 
-					myNav.rotateTo(A);
-					int dist = getFilteredData();
+				while(!Achecked){
 					myPilot.setTravelSpeed(SLOW_SPEED);
+					int dist = getFilteredData();
 					myPilot.travel(dist);
 
 					if(identifyBlock() == flagColor){
-						Sound.buzz();
+						Sound.twoBeeps();
 						myBot.setFlagRecognized(true);
 
 					}
@@ -130,7 +138,7 @@ public class Search implements Behavior{
 					myPilot.travel(dist);
 
 					if(identifyBlock() == flagColor){
-						Sound.buzz();
+						Sound.twoBeeps();
 						myBot.setFlagRecognized(true);
 					}
 					else{
@@ -143,7 +151,7 @@ public class Search implements Behavior{
 	}
 
 
-	//			if(distance < 30){
+	//			if(distance < THRESHOLD){
 	//				myPilot.setTravelSpeed(SLOW_SPEED);
 	//				myPilot.travel(distance);
 	//
