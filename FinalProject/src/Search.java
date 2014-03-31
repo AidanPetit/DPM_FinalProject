@@ -45,7 +45,11 @@ public class Search implements Behavior{
 	//Constructor
 	public Search(Team08Robot robot) {
 		myBot=robot;
+<<<<<<< HEAD
 		this.flagColor = myBot.getRedFlag();
+=======
+		this.flagColor = myBot.getFlagColor();
+>>>>>>> FETCH_HEAD
 		this.myCS = myBot.getFrontCS();
 		this.myUS = myBot.getFrontUS();
 		this.myPilot = myBot.getPilot();

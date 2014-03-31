@@ -63,13 +63,24 @@ public class LightLocalization {
 
 		double xAxisIntersectAngle = 0; 	//holds angle when lightsensor hits negative X axis
 		double yAxisIntersectAngle = 0;
+<<<<<<< HEAD
 
+=======
+>>>>>>> FETCH_HEAD
 
+		
 		// start rotating and clock all 4 gridlines
+<<<<<<< HEAD
 
 		myNav.rotateTo(0);
 		myLS.setFloodlight(true);
 
+=======
+
+		myNav.rotateTo(0);
+		myLS.setFloodlight(true);
+		
+>>>>>>> FETCH_HEAD
 		myPilot.setRotateSpeed(rotateSpeed);
 		myPilot.rotateRight();
 
@@ -77,8 +88,13 @@ public class LightLocalization {
 
 			int currentReading = myLS.getNormalizedLightValue(); //get a new value for the light reading every iteration
 
+<<<<<<< HEAD
 			//			LCD.drawString("LS: "+ currentReading, 0, 6); //output for debugging, might need to disable LCDDisplay to use
 			//			LCD.drawString("count: "+ lockCount, 0, 7); //output for debugging, might need to disable LCDDisplay to use
+=======
+//			LCD.drawString("LS: "+ currentReading, 0, 6); //output for debugging, might need to disable LCDDisplay to use
+//			LCD.drawString("count: "+ lockCount, 0, 7); //output for debugging, might need to disable LCDDisplay to use
+>>>>>>> FETCH_HEAD
 
 			/*
 			 * this uses a threshold. this is a bad method we should use a
@@ -106,6 +122,8 @@ public class LightLocalization {
 					yAngles[1] = currentTheta;
 					lockCount++;
 				}
+				
+				Sound.beep();
 
 				Sound.beep();
 
@@ -132,6 +150,7 @@ public class LightLocalization {
 		//fix angles
 		xAngles[1]=fixAngle(xAngles[1]);
 		xAngles[0]=fixAngle(xAngles[0]);
+<<<<<<< HEAD
 
 		yAngles[1]=fixAngle(yAngles[1]);
 		yAngles[0]=fixAngle(yAngles[0]);
@@ -144,13 +163,28 @@ public class LightLocalization {
 		double thetaY = Math.abs(yAngles[1]-yAngles[0]);
 		double thetaX = Math.abs(xAngles[1]-xAngles[0]);
 
+=======
 
+		yAngles[1]=fixAngle(yAngles[1]);
+		yAngles[0]=fixAngle(yAngles[0]);
+>>>>>>> FETCH_HEAD
+
+		yAxisIntersectAngle = fixAngle(yAxisIntersectAngle);
+		xAxisIntersectAngle = fixAngle(xAxisIntersectAngle);
+
+
+		// do trig to compute (0,0) and 0 degrees
+		double thetaY = Math.abs(yAngles[1]-yAngles[0]);
+		double thetaX = Math.abs(xAngles[1]-xAngles[0]);
+		
+		
 		double X = -sensorOffset*Math.cos((thetaY/2)*Math.PI/180);
 		double Y = -sensorOffset*Math.cos((thetaX/2)*Math.PI/180);
 		//calculate your new positions using thetaX and thetaY
 
 		double newHeadingY = 90 + (thetaX/2) - (xAxisIntersectAngle-180);
 		double newHeadingX = 90 + (thetaY/2) - (yAxisIntersectAngle-180);
+<<<<<<< HEAD
 
 		//		newHeadingY = fixAngle2(newHeadingY);
 
@@ -163,6 +197,20 @@ public class LightLocalization {
 		//		LCD.drawString("newX: "+ newHeadingX, 0, 6); //output for debugging, might need to disable LCDDisplay to use
 		//		LCD.drawString("newY: "+ newHeadingY, 0, 7); //output for debugging, might need to disable LCDDisplay to use
 		//
+=======
+		
+//		newHeadingY = fixAngle2(newHeadingY);
+		
+//		double newHeading = fixAngle2((newHeadingX+newHeadingY)/2);
+
+//		LCD.drawString("tX: " + thetaX, 0, 3);
+//		LCD.drawString("tY: " + thetaY, 0, 4);
+//		
+//		
+//		LCD.drawString("newX: "+ newHeadingX, 0, 6); //output for debugging, might need to disable LCDDisplay to use
+//		LCD.drawString("newY: "+ newHeadingY, 0, 7); //output for debugging, might need to disable LCDDisplay to use
+//
+>>>>>>> FETCH_HEAD
 
 		/*
 		 *  initialize a new Pose to update the Odometer
@@ -170,7 +218,11 @@ public class LightLocalization {
 		 */
 		double currentTheta = fixAngle(odo.getPose().getHeading());
 		double newTheta = fixAngle2(currentTheta+(newHeadingY-45));
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> FETCH_HEAD
 		float newX = (float) X;
 		float newY = (float) Y;
 		float newT = (float) newTheta;
@@ -181,14 +233,26 @@ public class LightLocalization {
 		odo.setPose(pos);
 
 		myNav.goTo(0,0);
+<<<<<<< HEAD
 
 		try { Thread.sleep(2000); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
 		
 		myNav.rotateTo(0);
+=======
+		
+		try { Thread.sleep(2000); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
+
+		if(!myNav.isMoving()){
+			myNav.rotateTo(0);
+		}
+		
+		try { Thread.sleep(60000); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
+>>>>>>> FETCH_HEAD
 
 	}
 
 	/*
+<<<<<<< HEAD
 	 * return an angle between 0 and 360
 	 */
 	public static double fixAngle(double angle) {
@@ -206,5 +270,24 @@ public class LightLocalization {
 		return angle;
 
 	}
+=======
+     * return an angle between 0 and 360
+     */
+    public static double fixAngle(double angle) {
+                    angle=angle%360;
+                    if(angle<0) angle+=360;
+                    return angle;
+    }
+   
+    /*
+     * return an angle between -180 and 180
+     */
+    public static double fixAngle2(double angle){
+            angle = fixAngle(angle);
+            if(angle>180) angle-=360;
+            return angle;
+           
+    }
+>>>>>>> FETCH_HEAD
 
 }
