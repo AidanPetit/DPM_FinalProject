@@ -28,7 +28,7 @@ public class USLocalization {
 	private UltrasonicSensor localizationUS;
 
 	private double rotateSpeed = 100;	//degrees per second
-	private int threshold = 30;
+	private int threshold = 35;
 	private int margin = 3;
 
 	public USLocalization(Team08Robot robot) {
@@ -63,7 +63,7 @@ public class USLocalization {
 		}
 
 		myPilot.stop();
-//		Sound.buzz();
+		Sound.buzz();
 
 		// rotate until the robot sees a wall, then latch the angle
 		myPilot.rotateRight();
@@ -89,9 +89,9 @@ public class USLocalization {
 
 		angleA = (A1+A2)/2;
 
-		//LCD.drawString("angleA: "+angleA, 0, 4);	//for debugging
+		LCD.drawString("angleA: "+angleA, 0, 4);	//for debugging
 
-//		Sound.beep();							//for debugging
+		Sound.beep();							//for debugging
 
 		// switch direction and wait until it sees no wall
 		myPilot.rotateLeft();
@@ -100,7 +100,7 @@ public class USLocalization {
 		while(wall!=60){
 			wall = getFilteredData();
 		}
-//		Sound.buzz();							//for debugging
+		Sound.buzz();							//for debugging
 
 		double B1=0;
 		double B2=0;
@@ -122,9 +122,9 @@ public class USLocalization {
 
 		myPilot.stop();
 		angleB = (B1+B2)/2;
-		//LCD.drawString("angleB: "+angleB, 0, 5);	//for debugging
+		LCD.drawString("angleB: "+angleB, 0, 5);	//for debugging
 
-//		Sound.beep();
+		Sound.beep();
 
 		// angleA is clockwise from angleB, so assume the average of the
 		// angles to the right of angleB is 45 degrees past 'north'
@@ -147,7 +147,7 @@ public class USLocalization {
 		float Y = curr.getY();
 		float theta = (float) (curr.getHeading()+delta);
 
-//		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
+		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
 
 
 		Pose newPose = new Pose(X,Y,theta);
@@ -155,11 +155,9 @@ public class USLocalization {
 		// update the odometer pose
 		myOdo.setPose(newPose);
 
-<<<<<<< HEAD
 
-=======
->>>>>>> FETCH_HEAD
 		myNav.rotateTo(0);
+
 	}
 
 	private int getFilteredData() {

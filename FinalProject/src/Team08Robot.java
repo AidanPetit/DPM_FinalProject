@@ -54,19 +54,10 @@ public class Team08Robot {
 	private boolean flagRecognized;
 	private boolean atFlagZone;
 	private boolean atDropZone;
-<<<<<<< HEAD
-=======
-	
-	private int flagColor;
-	private int redZoneLowerLeft;
-	private int redZoneUpperRight;
-	private int dropZoneLowerLeft;
-	private int dropZoneUpperRight;
->>>>>>> FETCH_HEAD
 
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
-	private static double width=15.5;
+	private static double width=16;
 
 	private static NXTRegulatedMotor leftMotor=Motor.A;
 	private static NXTRegulatedMotor rightMotor=Motor.B;
@@ -78,7 +69,6 @@ public class Team08Robot {
 	private UltrasonicSensor frontUS;
 
 	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
-<<<<<<< HEAD
 	private ColorSensor leftCS;		
 	private ColorSensor rightCS;	//for localization
 
@@ -92,11 +82,6 @@ public class Team08Robot {
 		return (new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL));
 	}
 
-=======
-	
-	private ColorSensor leftCS;
-	private ColorSensor rightCS;
->>>>>>> FETCH_HEAD
 
 	public int getObjectiveYUR() {
 		return (int) (30.48*objectiveYUR);
@@ -174,7 +159,6 @@ public class Team08Robot {
 		this.rightTrack = slave.B;
 //		this.topTouch = new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
-<<<<<<< HEAD
 		
 
 
@@ -184,15 +168,6 @@ public class Team08Robot {
 		this.rightCS = new ColorSensor(SensorPort.S2);
 		this.frontCS= new ColorSensor(SensorPort.S3);
 
-=======
-
-		//Initialize master sensors
-
-		this.leftCS = new ColorSensor(SensorPort.S1);
-		this.rightCS = new ColorSensor(SensorPort.S2);
-		this.frontCS= new ColorSensor(SensorPort.S3);
-
->>>>>>> FETCH_HEAD
 		this.leftTrack.stop();
 		this.rightTrack.stop();
 
@@ -227,8 +202,6 @@ public class Team08Robot {
 	public void setTooClose(boolean tooClose) {
 		this.tooClose = tooClose;
 	}
-	
-	//Class variable getters
 
 
 
@@ -264,18 +237,6 @@ public class Team08Robot {
 		return this.frontUS;
 	}
 
-<<<<<<< HEAD
-
-=======
-	public ColorSensor getLeftCS() {
-		return this.leftCS;
-	}
-
-
-	public ColorSensor getRightCS() {
-		return this.rightCS;
-	}
->>>>>>> FETCH_HEAD
 
 
 	public ColorSensor getFrontCS() {
@@ -313,7 +274,6 @@ public class Team08Robot {
 		return rightMotor;
 	}
 
-<<<<<<< HEAD
 	public int getFilteredData() {
 		int distance;
 
@@ -334,61 +294,4 @@ public class Team08Robot {
 	}
 
 
-=======
-	public int getFlagColor() {
-		return flagColor;
-	}
-
-	public void setFlagColor(int flagColor) {
-		this.flagColor = flagColor;
-	}
-
-	public int getRedZoneLowerLeft() {
-		return redZoneLowerLeft;
-	}
-
-	public void setRedZoneLowerLeft(int redZoneLowerLeft) {
-		this.redZoneLowerLeft = redZoneLowerLeft;
-	}
-
-	public int getRedZoneUpperRight() {
-		return redZoneUpperRight;
-	}
-
-	public void setRedZoneUpperRight(int redZoneUpperRight) {
-		this.redZoneUpperRight = redZoneUpperRight;
-	}
-
-	public int getDropZoneLowerLeft() {
-		return dropZoneLowerLeft;
-	}
-
-	public void setDropZoneLowerLeft(int dropZoneLowerLeft) {
-		this.dropZoneLowerLeft = dropZoneLowerLeft;
-	}
-
-	public int getDropZoneUpperRight() {
-		return dropZoneUpperRight;
-	}
-
-	public void setDropZoneUpperRight(int dropZoneUpperRight) {
-		this.dropZoneUpperRight = dropZoneUpperRight;
-	}
-
-	public boolean isAtFlagZone() {
-		return atFlagZone;
-	}
-
-	public void setAtFlagZone(boolean atFlagZone) {
-		this.atFlagZone = atFlagZone;
-	}
-
-	public boolean isAtDropZone() {
-		return atDropZone;
-	}
-
-	public void setAtDropZone(boolean atDropZone) {
-		this.atDropZone = atDropZone;
-	}
->>>>>>> FETCH_HEAD
 }

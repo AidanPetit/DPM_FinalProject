@@ -54,7 +54,6 @@ public class FinalProject {
 		myBot.getPilot().setTravelSpeed(20);
 		myBot.getPilot().setRotateSpeed(60);
 
-<<<<<<< HEAD
 		Behavior b1=new Travel(myBot);
 		Behavior b2=new Avoid(myBot);
 		Behavior b3=new Capture(myBot);
@@ -64,58 +63,9 @@ public class FinalProject {
 		Arbitrator arb = new Arbitrator(behaviorList);
 
 		arb.start();
-=======
-		if (buttonChoice == Button.ID_LEFT) {
-			LCD.clearDisplay();
-			myLCD = new LCDDisplay(myBot.getOdo());
-			
-			myBot.setAtFlagZone(true);
-			myBot.setFlagColor(2);	//red
-
-			Behavior search=new Search(myBot);
-			Behavior[] behaviorList = {search};
-			Arbitrator arb = new Arbitrator(behaviorList);
-			arb.start();
-
-			//			USLocalization USLocalizer = new USLocalization(myBot);
-			//			USLocalizer.doLocalization();
-			//			
-			//			LightLocalization LSLocalizer = new LightLocalization(myBot);
-			//			LSLocalizer.doLocalization();
-		}
-		else if(buttonChoice == Button.ID_RIGHT) {
-			LCD.clearDisplay();
-			myLCD = new LCDDisplay(myBot.getOdo());
-			Behavior b1=new Travel(myBot);
-			Behavior b2=new Avoid(myBot);
-			Behavior b3=new Capture(myBot);
-			Behavior b4=new Search(myBot);
->>>>>>> FETCH_HEAD
 
 
 
-<<<<<<< HEAD
-=======
-			/*
-			Waypoint w1 = new Waypoint(0,30);
-			Waypoint w2 = new Waypoint(30,60);
-			Waypoint w3 = new Waypoint(60,90);
-			Waypoint w4 = new Waypoint(45,45);
-			Waypoint w5 = new Waypoint(0,0);
-
-			Path path = new Path();
-			path.add(w1);
-			path.add(w2);
-			path.add(w3);
-			path.add(w4);
-			path.add(w5);
-
-			myBot.getNav().followPath(path);
-			 */
-
-		}
-
->>>>>>> FETCH_HEAD
 	}
 
 }
