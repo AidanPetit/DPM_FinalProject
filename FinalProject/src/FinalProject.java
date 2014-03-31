@@ -36,51 +36,34 @@ public class FinalProject {
 	private static LCDDisplay myLCD;
 
 	public static void main(String[] args)  throws Exception{
-		int buttonChoice;
+//		int buttonChoice;
+		LCD.drawString("Press a button", 0, 0);
 		Button.waitForAnyPress();
+		
 		myBot = new Team08Robot();
 
-		do {
-			LCD.clear();
+		LCD.clearDisplay();
+		myLCD = new LCDDisplay(myBot.getOdo());
 
-			LCD.drawString("< Left   | Right >", 0, 0);
-			LCD.drawString("         |    ", 0, 1);
-			LCD.drawString("     US  | Behavior ", 0, 2);
-			LCD.drawString("Localize | Test", 0, 3);
+		USLocalization USLocalizer = new USLocalization(myBot);
+		USLocalizer.doLocalization();
 
-			buttonChoice = Button.waitForAnyPress();
+		LightLocalization LightLocalizer = new LightLocalization(myBot);
+		LightLocalizer.doLocalization();
 
-		} while (buttonChoice != Button.ID_LEFT
-				&& buttonChoice != Button.ID_RIGHT);
+		myBot.getPilot().setTravelSpeed(20);
+		myBot.getPilot().setRotateSpeed(60);
 
-		if (buttonChoice == Button.ID_LEFT) {
-			LCD.clearDisplay();
-			myLCD = new LCDDisplay(myBot.getOdo());
+		Behavior b1=new Travel(myBot);
+		Behavior b2=new Avoid(myBot);
+		Behavior b3=new Capture(myBot);
+		Behavior b4=new Search(myBot);
 
-			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization();
+		Behavior[] behaviorList = {b1,b2,b3,b4};
+		Arbitrator arb = new Arbitrator(behaviorList);
 
-		}
-		
-		else if(buttonChoice == Button.ID_RIGHT) {
-			
-			LCD.clearDisplay();
-			myLCD = new LCDDisplay(myBot.getOdo());
-			myBot.getPilot().setTravelSpeed(25);
-			myBot.getPilot().setRotateSpeed(60);
-			
-			Behavior b1=new Travel(myBot);
-			Behavior b2=new Avoid(myBot);
-			Behavior b3=new Capture(myBot);
-			Behavior b4=new Search(myBot);
+		arb.start();
 
-			myBot.setFlagRecognized(true);
-			Behavior[] behaviorList = {b1,b2,b3,b4};
-			Arbitrator arb = new Arbitrator(behaviorList);
-			
-			arb.start();
-
-		}
 
 
 	}

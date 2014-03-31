@@ -40,10 +40,12 @@ public class Team08Robot {
 	private Navigation nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
-	
+
 	//Objective values
-	private int objectiveX ;
-	private int objectiveY ;
+	private int objectiveXLL ;
+	private int objectiveYLL ;
+	private int objectiveXUR;
+	private int objectiveYUR;
 	private int redFlag;
 
 	//Behavior booleans
@@ -67,17 +69,27 @@ public class Team08Robot {
 	private UltrasonicSensor frontUS;
 
 	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
-	private ColorSensor rearCS;			//for localization
+	private ColorSensor leftCS;		
+	private ColorSensor rightCS;	//for localization
 
 	//Testing feature detector
 	private int MAX_DISTANCE = 50;
 	private int DELAY=100;
-	
+
+
 	public Waypoint getObjectiveWaypoint()
 	{
-		return (new Waypoint(objectiveX,objectiveY));
+		return (new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL));
 	}
 
+
+	public int getObjectiveYUR() {
+		return (int) (30.48*objectiveYUR);
+	}
+
+	public int getObjectiveXUR() {
+		return (int) (30.48*objectiveXUR);
+	}
 
 	public Team08Robot(){
 		this.pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
@@ -90,9 +102,9 @@ public class Team08Robot {
 		this.flagRecognized = false;
 
 		BluetoothConnection conn = new BluetoothConnection();
-		
+
 		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
-		
+
 		// example usage of Tranmission class
 		Transmission t = conn.getTransmission();
 		if (t == null) {
@@ -102,21 +114,23 @@ public class Team08Robot {
 			StartCorner corner = t.startingCorner;
 			int greenZoneLL_X = t.greenZoneLL_X;
 			int greenZoneLL_Y = t.greenZoneLL_Y;
-			this.objectiveX = t.redZoneLL_X;
-			this.objectiveY = t.redZoneLL_Y;
+			this.objectiveXLL = t.redZoneLL_X;
+			this.objectiveYLL = t.redZoneLL_Y;
+			this.objectiveXUR = t.redZoneUR_X;
+			this.objectiveYUR = t.redZoneUR_Y;
 			int greenDZone_X = t.greenDZone_X;
 			int greenDZone_Y = t.greenDZone_Y;
 			int redDZone_X = t.redDZone_X;
 			int redDZone_Y = t.redDZone_Y;
 			int greenFlag = t.greenFlag;
 			redFlag=t.redFlag;
-			
-			
-		
+
+
+			LCD.drawString("All received",0,0);
 			// print out the transmission information
 			conn.printTransmission();
 		}
-		
+
 		//initialize connection with slave
 		LCD.clearDisplay();
 		LCD.drawString("Connecting...",0,0);
@@ -143,20 +157,20 @@ public class Team08Robot {
 		//Initialize slave motors and sensors
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
-		this.topTouch = new TouchSensor(slave.S1);
+//		this.topTouch = new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
+		
 
 
-		//		ColorSensor color=new ColorSensor();
 
 		//Initialize master sensors
-		this.frontCS= new ColorSensor(SensorPort.S2);
+		this.leftCS = new ColorSensor(SensorPort.S1);
+		this.rightCS = new ColorSensor(SensorPort.S2);
+		this.frontCS= new ColorSensor(SensorPort.S3);
 
-		//this.frontCS = new ColorSensor(SensorPort.S2);
-		//this.rearCS = new ColorSensor(SensorPort.S3);
 		this.leftTrack.stop();
 		this.rightTrack.stop();
-       
+
 	}
 
 	//Boolean getters and setters
@@ -223,17 +237,25 @@ public class Team08Robot {
 		return this.frontUS;
 	}
 
-	public ColorSensor getRearCS() {
-		return this.rearCS;
-	}
+
 
 	public ColorSensor getFrontCS() {
 		return this.frontCS;
 	}
 
-	public TouchSensor getTopTouch() {
-		return this.topTouch;
+	public ColorSensor getRightCS() {
+		return rightCS;
 	}
+
+
+	public ColorSensor getLeftCS() {
+		return leftCS;
+	}
+
+//
+//	public TouchSensor getTopTouch() {
+//		return this.topTouch;
+//	}
 
 
 	public RemoteMotor getLeftTrack() {
@@ -251,7 +273,7 @@ public class Team08Robot {
 	public NXTRegulatedMotor getRightMotor() {
 		return rightMotor;
 	}
-	
+
 	public int getFilteredData() {
 		int distance;
 

@@ -25,26 +25,24 @@ public class LightLocalization {
 	 * This will probable be fairly buggy, I need to be in the lab to debug
 	 */
 
-	//private Team08Robot robot;	??
 	private OdometryPoseProvider odo;
 	private ColorSensor myLS;
 	private Navigator myNav;
 	private Driver myPilot;
 
+	private double rotateSpeed = 60;
 	private double sensorOffset = 12; // in cm, not accurate needs to be measured
 
-	public LightLocalization(OdometryPoseProvider odo, ColorSensor ls,Navigator nav, Driver driver) {
+	public LightLocalization(Team08Robot myBot) {
 		/*
 		 * Constructor for LightLocalization
 		 *
-		 * Use nav or pilot to control movement of the bot
-		 * and odometer to get position info
 		 */
 
-		this.odo = odo;
-		this.myLS = ls;
-		this.myNav = nav;
-		this.myPilot = driver;
+		this.odo = myBot.getOdo();
+		this.myLS = myBot.getRightCS();
+		this.myNav = myBot.getNav();
+		this.myPilot = myBot.getPilot();
 	}
 
 	public void doLocalization() {
@@ -60,28 +58,27 @@ public class LightLocalization {
 		boolean anglesClocked = false;
 		int lockCount = 0;
 
-		// need to figure out how to find desired position
-		// for now this is the coordinates used for team24 in lab 4
-
-		myNav.goTo(7,8);
-		myNav.rotateTo(90);
-
 		double[] xAngles = new double[2];	//holds the two angles when the light sensor detects the X axis
 		double[] yAngles = new double[2];	//holds the two angles for Y axis when sensor detects the line
+
 		double xAxisIntersectAngle = 0; 	//holds angle when lightsensor hits negative X axis
+		double yAxisIntersectAngle = 0;
+
 
 		// start rotating and clock all 4 gridlines
-		//rotate in place to clock angles
+
+		myNav.rotateTo(0);
 		myLS.setFloodlight(true);
 
+		myPilot.setRotateSpeed(rotateSpeed);
 		myPilot.rotateRight();
 
 		while(!anglesClocked){ //keep rotating until all four angles have been clocked
 
 			int currentReading = myLS.getNormalizedLightValue(); //get a new value for the light reading every iteration
-			Pose currentPose = odo.getPose();
 
-			LCD.drawString("count: "+ lockCount, 0, 6); //output for debugging, might need to disable LCDDisplay to use
+			//			LCD.drawString("LS: "+ currentReading, 0, 6); //output for debugging, might need to disable LCDDisplay to use
+			//			LCD.drawString("count: "+ lockCount, 0, 7); //output for debugging, might need to disable LCDDisplay to use
 
 			/*
 			 * this uses a threshold. this is a bad method we should use a
@@ -89,32 +86,35 @@ public class LightLocalization {
 			 * Juan and I never implemented this
 			 */
 
-			if (currentReading<300) {
-				double currentTheta = currentPose.getHeading();
+			if (currentReading<470) {
+				double currentTheta = odo.getPose().getHeading();
 				if (lockCount==0){ // negative x axis
 					xAngles[0] = currentTheta;
 					xAxisIntersectAngle = currentTheta; //save the negative x axis intersection angle for future reference
 					lockCount++;
 				}
-				else if (lockCount==1){ //positive y
-					yAngles[1] = currentTheta;
+				else if (lockCount==1){ //negative y
+					yAngles[0] = currentTheta;
+					yAxisIntersectAngle = currentTheta;
 					lockCount++;
 				}
 				else if (lockCount==2){ //positive x
 					xAngles[1] = currentTheta;
 					lockCount++;
 				}
-				else if (lockCount==3){ //negative y
-					yAngles[0] = currentTheta;
+				else if (lockCount==3){ //positive y
+					yAngles[1] = currentTheta;
 					lockCount++;
 				}
+
+				Sound.beep();
 
 				if (lockCount == 4){	// after 4 lines have been clocked the loop terminates and the robot stops moving
 					myPilot.stop();
 					anglesClocked = true;
 					break;
 				}
-				try { Thread.sleep(100); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
+				try { Thread.sleep(75); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
 			}
 		}
 
@@ -122,50 +122,89 @@ public class LightLocalization {
 		//Some screen output for debugging
 		LCD.clear();
 
-		LCD.drawString("xAxis: " + xAxisIntersectAngle, 0, 2);
-		LCD.drawString("yAxis: " + yAxisIntersectAngle, 0, 3);
-		LCD.drawString("x1: " + xAngles[0], 0, 4);
-		LCD.drawString("x2: " + xAngles[1], 0, 5);
-		LCD.drawString("y1: " + yAngles[0], 0, 6);
-		LCD.drawString("y2: " + yAngles[1], 0, 7);
+		LCD.drawString("x1: " + xAngles[0], 0, 3);
+		LCD.drawString("x2: " + xAngles[1], 0, 4);
+		LCD.drawString("y1: " + yAngles[0], 0, 5);
+		LCD.drawString("y2: " + yAngles[1], 0, 6);
 		try { Thread.sleep(2000); } catch (InterruptedException e) {}
 		 */
 
+		//fix angles
+		xAngles[1]=fixAngle(xAngles[1]);
+		xAngles[0]=fixAngle(xAngles[0]);
+
+		yAngles[1]=fixAngle(yAngles[1]);
+		yAngles[0]=fixAngle(yAngles[0]);
+
+		yAxisIntersectAngle = fixAngle(yAxisIntersectAngle);
+		xAxisIntersectAngle = fixAngle(xAxisIntersectAngle);
+
 
 		// do trig to compute (0,0) and 0 degrees
-		double thetaY = yAngles[0]-yAngles[1];
-		double thetaX = xAngles[0]-xAngles[1];
-		//thetaX/Y is the measure of the arc the robot travels between the positive and negative X/Y axis
+		double thetaY = Math.abs(yAngles[1]-yAngles[0]);
+		double thetaX = Math.abs(xAngles[1]-xAngles[0]);
+
 
 		double X = -sensorOffset*Math.cos((thetaY/2)*Math.PI/180);
 		double Y = -sensorOffset*Math.cos((thetaX/2)*Math.PI/180);
 		//calculate your new positions using thetaX and thetaY
 
 		double newHeadingY = 90 + (thetaX/2) - (xAxisIntersectAngle-180);
+		double newHeadingX = 90 + (thetaY/2) - (yAxisIntersectAngle-180);
 
-		// only the heading with respect to the Y axis was used
-		//double newHeadingX = (thetaY/2) - (yAxisIntersectAngle-180);
-		//double newHeading = (newHeadingX+newHeadingY)/2;
+		//		newHeadingY = fixAngle2(newHeadingY);
+
+		//		double newHeading = fixAngle2((newHeadingX+newHeadingY)/2);
+
+		//		LCD.drawString("tX: " + thetaX, 0, 3);
+		//		LCD.drawString("tY: " + thetaY, 0, 4);
+		//		
+		//		
+		//		LCD.drawString("newX: "+ newHeadingX, 0, 6); //output for debugging, might need to disable LCDDisplay to use
+		//		LCD.drawString("newY: "+ newHeadingY, 0, 7); //output for debugging, might need to disable LCDDisplay to use
+		//
 
 		/*
 		 *  initialize a new Pose to update the Odometer
 		 *  X and Y are cast to float, precision shouldnt be an issue
 		 */
-		float newTheta = (float) (odo.getPose().getHeading()+newHeadingY);
+		double currentTheta = fixAngle(odo.getPose().getHeading());
+		double newTheta = fixAngle2(currentTheta+(newHeadingY-45));
+
 		float newX = (float) X;
 		float newY = (float) Y;
+		float newT = (float) newTheta;
 
-		Pose pos = new Pose(newX,newY,newTheta);
+		Pose pos = new Pose(newX,newY,newT);
 
 		//set the odometer to reflect the new X, Y and theta values
 		odo.setPose(pos);
 
-
-		// when done travel to (0,0) and turn to 0 degrees
 		myNav.goTo(0,0);
+
+		try { Thread.sleep(2000); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
+		
 		myNav.rotateTo(0);
 
-		//Sound sequence to indicate termination
-		Sound.beepSequenceUp();
 	}
+
+	/*
+	 * return an angle between 0 and 360
+	 */
+	public static double fixAngle(double angle) {
+		angle=angle%360;
+		if(angle<0) angle+=360;
+		return angle;
+	}
+
+	/*
+	 * return an angle between -180 and 180
+	 */
+	public static double fixAngle2(double angle){
+		angle = fixAngle(angle);
+		if(angle>180) angle-=360;
+		return angle;
+
+	}
+
 }

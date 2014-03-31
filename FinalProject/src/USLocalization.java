@@ -156,9 +156,6 @@ public class USLocalization {
 		myOdo.setPose(newPose);
 
 
-		try{Thread.sleep(2000);}
-		catch(InterruptedException e){}
-
 		myNav.rotateTo(0);
 
 	}
