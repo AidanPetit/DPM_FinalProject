@@ -59,8 +59,11 @@ public class FinalProject {
 			myLCD = new LCDDisplay(myBot.getOdo());
 
 			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization(4);	//top left
+			USLocalizer.doLocalization(3);	
 
+			LightLocalization LightLocalizer = new LightLocalization(myBot);
+			LightLocalizer.doLocalization(3);
+			
 		}
 		else{
 			LCD.clearDisplay();
@@ -73,7 +76,7 @@ public class FinalProject {
 			USLocalizer.doLocalization(1);
 
 			LightLocalization LightLocalizer = new LightLocalization(myBot);
-			LightLocalizer.doLocalization();
+			LightLocalizer.doLocalization(1);
 
 			myBot.getPilot().setTravelSpeed(20);
 			myBot.getPilot().setRotateSpeed(60);

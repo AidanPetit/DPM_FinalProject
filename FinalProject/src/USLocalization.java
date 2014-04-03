@@ -21,7 +21,7 @@ import lejos.robotics.navigation.Pose;
  * 4 - top left
  *
  * @author Aidan Petit
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -100,7 +100,7 @@ public class USLocalization {
 
 		angleA = (A1+A2)/2;
 
-		LCD.drawString("angleA: "+angleA, 0, 4);	//for debugging
+//		LCD.drawString("angleA: "+angleA, 0, 4);	//for debugging
 
 		Sound.beep();							//for debugging
 
@@ -133,7 +133,7 @@ public class USLocalization {
 
 		myPilot.stop();
 		angleB = (B1+B2)/2;
-		LCD.drawString("angleB: "+angleB, 0, 5);	//for debugging
+//		LCD.drawString("angleB: "+angleB, 0, 5);	//for debugging
 
 		Sound.beep();
 
@@ -153,13 +153,13 @@ public class USLocalization {
 		else if(angleA>angleB){
 			delta = 225-(angleA+angleB)/2;
 		}
-		
+
 		Pose curr = myOdo.getPose();
 
 		float X = curr.getX();
 		float Y = curr.getY();
 		float theta = (float) (curr.getHeading()+delta);
-		
+
 		if (corner == 2){		
 			theta = theta + 90;
 		}
@@ -170,14 +170,14 @@ public class USLocalization {
 			theta = theta - 90;
 		}
 
-		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
+//		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
 
 
 		Pose newPose = new Pose(X,Y,theta);
 
 		// update the odometer pose
 		myOdo.setPose(newPose);
-		
+
 		if (corner == 1){
 			myNav.rotateTo(0);
 
@@ -191,10 +191,6 @@ public class USLocalization {
 		else if (corner == 4){
 			myNav.rotateTo(-90);
 		}
-		Sound.beepSequenceUp();
-		//wait to see screen display
-		try { Thread.sleep(20000); } catch (InterruptedException e) {}
-
 	}
 
 	private int getFilteredData() {
