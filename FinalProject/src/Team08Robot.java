@@ -33,7 +33,6 @@ import lejos.robotics.navigation.Waypoint;
  * @version 1.0
  * @since 1.0
  */
-
 public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
@@ -47,6 +46,7 @@ public class Team08Robot {
 	private int objectiveXUR;
 	private int objectiveYUR;
 	private int redFlag;
+	private StartCorner corner;
 
 	//Behavior booleans
 	private boolean tooClose;
@@ -111,7 +111,7 @@ public class Team08Robot {
 			LCD.drawString("Failed to read transmission", 0, 5);
 		} else {
 			PlayerRole role = t.role;
-			StartCorner corner = t.startingCorner;
+			corner = t.startingCorner;
 			int greenZoneLL_X = t.greenZoneLL_X;
 			int greenZoneLL_Y = t.greenZoneLL_Y;
 			this.objectiveXLL = t.redZoneLL_X;
@@ -125,6 +125,7 @@ public class Team08Robot {
 			int greenFlag = t.greenFlag;
 			redFlag=t.redFlag;
 
+			
 
 			LCD.drawString("All received",0,0);
 			// print out the transmission information
@@ -291,6 +292,11 @@ public class Team08Robot {
 			distance = 60;
 		}
 		return distance;
+	}
+
+
+	public StartCorner getCorner() {
+		return this.corner;
 	}
 
 

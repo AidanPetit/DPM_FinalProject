@@ -1,8 +1,8 @@
 /* DPM Final Project - UltraSonic Localization Class
-*  ECSE211-DPM	Group 08
-*  Wei-Di Chang 260524917
-*  Aidan Petit
-*/
+ *  ECSE211-DPM	Group 08
+ *  Wei-Di Chang 260524917
+ *  Aidan Petit
+ */
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
@@ -11,13 +11,19 @@ import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
 
 /**
-*
-* Ultrasonic Localization class, which is used to determine initial 0 heading
-*
-* @author Aidan Petit
-* @version 1.0
-* @since 1.0
-*/
+ *
+ * Ultrasonic Localization class, which is used to determine initial heading
+ * just knowing the staring corner of the robot
+ * Corner Numbers:
+ * 1 - bottom left
+ * 2 - bottom right
+ * 3 - top right
+ * 4 - top left
+ *
+ * @author Aidan Petit
+ * @version 1.0
+ * @since 1.0
+ */
 
 public class USLocalization {
 	private Team08Robot myBot;
@@ -31,6 +37,8 @@ public class USLocalization {
 	private int threshold = 35;
 	private int margin = 3;
 
+	int corner;
+
 	public USLocalization(Team08Robot robot) {
 		this.myBot = robot;
 
@@ -40,14 +48,16 @@ public class USLocalization {
 
 		this.localizationUS = myBot.getFrontUS();
 
+		this.corner = myBot.getCorner().getId();
+
 	}
 
 	public void doLocalization() {
 		/*
-		 * Localize the robot using Rising Edge Detection, assumes robot is in bottom left hand of board ie near (0.0)
-		 *
-		 *
-		 * Not tested
+		 * Localize the robot using Rising Edge Detection
+		 * Achieves 0, 90, 180 or -90 degrees depending on 
+		 * the starting corner
+		 * 
 		 */
 		double angleA, angleB;
 		int wall = getFilteredData();
@@ -126,26 +136,38 @@ public class USLocalization {
 
 		Sound.beep();
 
-		// angleA is clockwise from angleB, so assume the average of the
-		// angles to the right of angleB is 45 degrees past 'north'
-		//
+		// angleA is clockwise from angleB
+		// 1 -the average of the angles to the right of angleB is 45 degrees past 'north'
+		// 2 - 135
+		// 3 - 225 (-135)
+		// 4 - 315 (-45)
 
 		//double startingAng = -(angleB-360-angleA)/2 + 45 - angleA;
 
-		double delta = 0;
 
+		double delta = 0;
 		if(angleA<angleB){
 			delta = 45-(angleA+angleB)/2;
 		}
 		else if(angleA>angleB){
 			delta = 225-(angleA+angleB)/2;
 		}
-
+		
 		Pose curr = myOdo.getPose();
 
 		float X = curr.getX();
 		float Y = curr.getY();
 		float theta = (float) (curr.getHeading()+delta);
+		
+		if (corner == 2){		
+			theta = theta - 90;
+		}
+		else if (corner == 3){
+			theta = theta - 180;
+		}
+		else if (corner == 4){
+			theta = theta + 90;
+		}
 
 		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
 
@@ -154,8 +176,6 @@ public class USLocalization {
 
 		// update the odometer pose
 		myOdo.setPose(newPose);
-
-
 		myNav.rotateTo(0);
 
 	}
