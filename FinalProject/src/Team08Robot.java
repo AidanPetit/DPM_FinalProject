@@ -100,7 +100,7 @@ public class Team08Robot {
 		this.tooClose = false;
 		this.flagCaptured = false;
 		this.flagRecognized = false;
-
+/*
 		BluetoothConnection conn = new BluetoothConnection();
 
 		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
@@ -131,7 +131,7 @@ public class Team08Robot {
 			// print out the transmission information
 			conn.printTransmission();
 		}
-
+*/
 		//initialize connection with slave
 		LCD.clearDisplay();
 		LCD.drawString("Connecting...",0,0);

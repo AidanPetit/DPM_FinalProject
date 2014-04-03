@@ -48,17 +48,18 @@ public class USLocalization {
 
 		this.localizationUS = myBot.getFrontUS();
 
-		this.corner = myBot.getCorner().getId();
 
 	}
 
-	public void doLocalization() {
+	public void doLocalization(int StartCorner) {
 		/*
 		 * Localize the robot using Rising Edge Detection
 		 * Achieves 0, 90, 180 or -90 degrees depending on 
 		 * the starting corner
 		 * 
 		 */
+		this.corner = StartCorner;
+
 		double angleA, angleB;
 		int wall = getFilteredData();
 
@@ -160,13 +161,13 @@ public class USLocalization {
 		float theta = (float) (curr.getHeading()+delta);
 		
 		if (corner == 2){		
-			theta = theta - 90;
+			theta = theta + 90;
 		}
 		else if (corner == 3){
-			theta = theta - 180;
+			theta = theta + 180;
 		}
 		else if (corner == 4){
-			theta = theta + 90;
+			theta = theta - 90;
 		}
 
 		LCD.drawString("new Theta: "+theta, 0, 3);	//for debugging
@@ -176,7 +177,23 @@ public class USLocalization {
 
 		// update the odometer pose
 		myOdo.setPose(newPose);
-		myNav.rotateTo(0);
+		
+		if (corner == 1){
+			myNav.rotateTo(0);
+
+		}
+		else if (corner == 2){		
+			myNav.rotateTo(90);
+		}
+		else if (corner == 3){
+			myNav.rotateTo(180);
+		}
+		else if (corner == 4){
+			myNav.rotateTo(-90);
+		}
+		Sound.beepSequenceUp();
+		//wait to see screen display
+		try { Thread.sleep(20000); } catch (InterruptedException e) {}
 
 	}
 

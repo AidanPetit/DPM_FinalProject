@@ -36,35 +36,59 @@ public class FinalProject {
 	private static LCDDisplay myLCD;
 
 	public static void main(String[] args)  throws Exception{
-//		int buttonChoice;
-		LCD.drawString("Press a button", 0, 0);
-		Button.waitForAnyPress();
-		
-		myBot = new Team08Robot();
+		int buttonChoice;
 
-		LCD.clearDisplay();
-		myLCD = new LCDDisplay(myBot.getOdo());
+		do {
+			// clear the display
+			LCD.clear();
 
-		USLocalization USLocalizer = new USLocalization(myBot);
-		USLocalizer.doLocalization();
-
-		LightLocalization LightLocalizer = new LightLocalization(myBot);
-		LightLocalizer.doLocalization();
-
-		myBot.getPilot().setTravelSpeed(20);
-		myBot.getPilot().setRotateSpeed(60);
-
-		Behavior b1=new Travel(myBot);
-		Behavior b2=new Avoid(myBot);
-		Behavior b3=new Capture(myBot);
-		Behavior b4=new Search(myBot);
-
-		Behavior[] behaviorList = {b1,b2,b3,b4};
-		Arbitrator arb = new Arbitrator(behaviorList);
-
-		arb.start();
+			//ask user which localization flavor to use
+			LCD.drawString("< Left | Right >", 0, 0);
+			LCD.drawString("       |        ", 0, 1);
+			LCD.drawString(" Loca  | Full ", 0, 2);
+			LCD.drawString(" -lize | Run", 0, 3);
+			LCD.drawString("       |", 0, 4);
 
 
+			buttonChoice = Button.waitForAnyPress();
+		} while (buttonChoice != Button.ID_LEFT
+				&& buttonChoice != Button.ID_RIGHT);
+
+		if (buttonChoice == Button.ID_LEFT) {
+			myBot = new Team08Robot();
+			myLCD = new LCDDisplay(myBot.getOdo());
+
+			USLocalization USLocalizer = new USLocalization(myBot);
+			USLocalizer.doLocalization(4);	//top left
+
+		}
+		else{
+			LCD.clearDisplay();
+
+
+			myBot = new Team08Robot();
+			myLCD = new LCDDisplay(myBot.getOdo());
+
+			USLocalization USLocalizer = new USLocalization(myBot);
+			USLocalizer.doLocalization(1);
+
+			LightLocalization LightLocalizer = new LightLocalization(myBot);
+			LightLocalizer.doLocalization();
+
+			myBot.getPilot().setTravelSpeed(20);
+			myBot.getPilot().setRotateSpeed(60);
+
+			Behavior b1=new Travel(myBot);
+			Behavior b2=new Avoid(myBot);
+			Behavior b3=new Capture(myBot);
+			Behavior b4=new Search(myBot);
+
+			Behavior[] behaviorList = {b1,b2,b3,b4};
+			Arbitrator arb = new Arbitrator(behaviorList);
+
+			arb.start();
+
+		}
 
 	}
 
