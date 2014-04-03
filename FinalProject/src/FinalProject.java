@@ -45,8 +45,8 @@ public class FinalProject {
 			//ask user which localization flavor to use
 			LCD.drawString("< Left | Right >", 0, 0);
 			LCD.drawString("       |        ", 0, 1);
-			LCD.drawString(" Loca  | Full ", 0, 2);
-			LCD.drawString(" -lize | Run", 0, 3);
+			LCD.drawString(" Test  | Full ", 0, 2);
+			LCD.drawString("       | Run", 0, 3);
 			LCD.drawString("       |", 0, 4);
 
 
@@ -57,12 +57,19 @@ public class FinalProject {
 		if (buttonChoice == Button.ID_LEFT) {
 			myBot = new Team08Robot();
 			myLCD = new LCDDisplay(myBot.getOdo());
+			
+			OdometerCorrection myCorrect = new OdometerCorrection(myBot);
+			myBot.setOdometerCorrection(myCorrect);
 
-			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization(3);	
-
-			LightLocalization LightLocalizer = new LightLocalization(myBot);
-			LightLocalizer.doLocalization(3);
+			myBot.getNav().goTo(0,60);
+			
+			myCorrect.run();
+			
+//			USLocalization USLocalizer = new USLocalization(myBot);
+//			USLocalizer.doLocalization(3);	
+//
+//			LightLocalization LightLocalizer = new LightLocalization(myBot);
+//			LightLocalizer.doLocalization(3);
 			
 		}
 		else{

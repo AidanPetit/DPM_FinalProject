@@ -36,6 +36,7 @@ import lejos.robotics.navigation.Waypoint;
 public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
+	private OdometerCorrection odoCorrect;
 	private Navigation nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
@@ -72,6 +73,7 @@ public class Team08Robot {
 	private ColorSensor leftCS;		
 	private ColorSensor rightCS;	//for localization
 
+
 	//Testing feature detector
 	private int MAX_DISTANCE = 50;
 	private int DELAY=100;
@@ -100,7 +102,7 @@ public class Team08Robot {
 		this.tooClose = false;
 		this.flagCaptured = false;
 		this.flagRecognized = false;
-/*
+		/*
 		BluetoothConnection conn = new BluetoothConnection();
 
 		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
@@ -125,13 +127,13 @@ public class Team08Robot {
 			int greenFlag = t.greenFlag;
 			redFlag=t.redFlag;
 
-			
+
 
 			LCD.drawString("All received",0,0);
 			// print out the transmission information
 			conn.printTransmission();
 		}
-*/
+		 */
 		//initialize connection with slave
 		LCD.clearDisplay();
 		LCD.drawString("Connecting...",0,0);
@@ -158,17 +160,15 @@ public class Team08Robot {
 		//Initialize slave motors and sensors
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
-//		this.topTouch = new TouchSensor(slave.S1);
+		//		this.topTouch = new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
-		
-
-
 
 		//Initialize master sensors
 		this.leftCS = new ColorSensor(SensorPort.S1);
 		this.rightCS = new ColorSensor(SensorPort.S2);
 		this.frontCS= new ColorSensor(SensorPort.S3);
 
+		//stop tracks
 		this.leftTrack.stop();
 		this.rightTrack.stop();
 
@@ -253,10 +253,10 @@ public class Team08Robot {
 		return leftCS;
 	}
 
-//
-//	public TouchSensor getTopTouch() {
-//		return this.topTouch;
-//	}
+	//
+	//	public TouchSensor getTopTouch() {
+	//		return this.topTouch;
+	//	}
 
 
 	public RemoteMotor getLeftTrack() {
@@ -299,5 +299,24 @@ public class Team08Robot {
 		return this.corner;
 	}
 
+	public boolean isRotating() {
+		if(leftMotor.getRotationSpeed() > 0 && rightMotor.getRotationSpeed() < 0) {
+			return true;
+		}
+		else if(leftMotor.getRotationSpeed() < 0 && rightMotor.getRotationSpeed() > 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 
+
+	public OdometerCorrection getMyOdoCorrect() {
+		return odoCorrect;
+	}
+	
+	public void setOdometerCorrection(OdometerCorrection correct) {
+		this.odoCorrect = correct;
+	}
 }
