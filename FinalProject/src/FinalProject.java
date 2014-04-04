@@ -42,7 +42,6 @@ public class FinalProject {
 			// clear the display
 			LCD.clear();
 
-			//ask user which localization flavor to use
 			LCD.drawString("< Left | Right >", 0, 0);
 			LCD.drawString("       |        ", 0, 1);
 			LCD.drawString(" Test  | Full ", 0, 2);
@@ -63,7 +62,10 @@ public class FinalProject {
 
 			myBot.getNav().goTo(0,60);
 			
+			OdometerCorrection.enableCorrection();
 			myCorrect.run();
+			
+			myBot.getNav().goTo(60, 60);
 			
 //			USLocalization USLocalizer = new USLocalization(myBot);
 //			USLocalizer.doLocalization(3);	
