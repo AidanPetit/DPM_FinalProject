@@ -47,6 +47,8 @@ public class Team08Robot {
 	private int objectiveXUR;
 	private int objectiveYUR;
 	private int redFlag;
+	private Waypoint[] objective;
+	private int sensorRange;
 
 	//Behavior booleans
 	private boolean tooClose;
@@ -55,17 +57,20 @@ public class Team08Robot {
 	private boolean atFlagZone;
 	private boolean atDropZone;
 
+	//Robot properties
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
 	private static double width=16;
-
+	
+	//Motors
 	private static NXTRegulatedMotor leftMotor=Motor.A;
 	private static NXTRegulatedMotor rightMotor=Motor.B;
-
+	
+	//Slave motors
 	private RemoteMotor leftTrack;
 	private RemoteMotor rightTrack;
-
-	private TouchSensor topTouch;
+	
+	//Sensors
 	private UltrasonicSensor frontUS;
 
 	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
@@ -77,19 +82,7 @@ public class Team08Robot {
 	private int DELAY=100;
 
 
-	public Waypoint getObjectiveWaypoint()
-	{
-		return (new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL));
-	}
 
-
-	public int getObjectiveYUR() {
-		return (int) (30.48*objectiveYUR);
-	}
-
-	public int getObjectiveXUR() {
-		return (int) (30.48*objectiveXUR);
-	}
 
 	public Team08Robot(){
 		this.pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
@@ -100,36 +93,53 @@ public class Team08Robot {
 		this.tooClose = false;
 		this.flagCaptured = false;
 		this.flagRecognized = false;
-
-		BluetoothConnection conn = new BluetoothConnection();
-
-		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
-
-		// example usage of Tranmission class
-		Transmission t = conn.getTransmission();
-		if (t == null) {
-			LCD.drawString("Failed to read transmission", 0, 5);
-		} else {
-			PlayerRole role = t.role;
-			StartCorner corner = t.startingCorner;
-			int greenZoneLL_X = t.greenZoneLL_X;
-			int greenZoneLL_Y = t.greenZoneLL_Y;
-			this.objectiveXLL = t.redZoneLL_X;
-			this.objectiveYLL = t.redZoneLL_Y;
-			this.objectiveXUR = t.redZoneUR_X;
-			this.objectiveYUR = t.redZoneUR_Y;
-			int greenDZone_X = t.greenDZone_X;
-			int greenDZone_Y = t.greenDZone_Y;
-			int redDZone_X = t.redDZone_X;
-			int redDZone_Y = t.redDZone_Y;
-			int greenFlag = t.greenFlag;
-			redFlag=t.redFlag;
+		this.atFlagZone = true;		//Change back to false
 
 
-			LCD.drawString("All received",0,0);
-			// print out the transmission information
-			conn.printTransmission();
+		//		BluetoothConnection conn = new BluetoothConnection();
+		//
+		//		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
+		//
+		//		// example usage of Tranmission class
+		//		Transmission t = conn.getTransmission();
+		//		if (t == null) {
+		//			LCD.drawString("Failed to read transmission", 0, 5);
+		//		} else {
+		//			PlayerRole role = t.role;
+		//			StartCorner corner = t.startingCorner;
+		//			int greenZoneLL_X = t.greenZoneLL_X;
+		//			int greenZoneLL_Y = t.greenZoneLL_Y;
+		//			this.objectiveXLL = t.redZoneLL_X;
+		//			this.objectiveYLL = t.redZoneLL_Y;
+		//			this.objectiveXUR = t.redZoneUR_X;
+		//			this.objectiveYUR = t.redZoneUR_Y;
+		//			int greenDZone_X = t.greenDZone_X;
+		//			int greenDZone_Y = t.greenDZone_Y;
+		//			int redDZone_X = t.redDZone_X;
+		//			int redDZone_Y = t.redDZone_Y;
+		//			int greenFlag = t.greenFlag;
+		//			redFlag=t.redFlag;
+		//
+		//
+		//			LCD.drawString("All received",0,0);
+		//			// print out the transmission information
+		//			conn.printTransmission();
+		//		}
+
+		//For testing purpose :
+		this.objectiveXLL=1;
+		this.objectiveYLL=1;
+		this.objectiveXUR=3;
+		this.objectiveYUR=3;
+		
+		if((this.objectiveXUR-this.objectiveXLL)>(this.objectiveYUR-this.objectiveYLL))	//Scale sensorRange with respect to the objective zone, for the search scan. 						
+		{																				//Anything beyond the longest side of the objective zone is not in the corner scan zone
+			this.sensorRange = (int)30.48*((this.objectiveXUR-this.objectiveXLL));		//As the robot should go through all 4 corners of the zone, the whole zone should get throroughly scanned.
 		}
+		else {
+			this.sensorRange = (int)30.48*((this.objectiveYUR-this.objectiveYLL));
+		}
+		//--------------------
 
 		//initialize connection with slave
 		LCD.clearDisplay();
@@ -157,10 +167,15 @@ public class Team08Robot {
 		//Initialize slave motors and sensors
 		this.leftTrack = slave.A;
 		this.rightTrack = slave.B;
-//		this.topTouch = new TouchSensor(slave.S1);
+		//		this.topTouch = new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
-		
 
+		//Initialize objective corners array
+		this.objective=new Waypoint[4];
+		this.objective[0] = new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL);
+		this.objective[1] = new Waypoint(30.48*objectiveXUR,30.48*objectiveYLL);
+		this.objective[2] = new Waypoint(30.48*objectiveXUR,30.48*objectiveYUR);
+		this.objective[3] = new Waypoint(30.48*objectiveXLL,30.48*objectiveYUR);
 
 
 		//Initialize master sensors
@@ -174,6 +189,7 @@ public class Team08Robot {
 	}
 
 	//Boolean getters and setters
+
 
 	public int getRedFlag() {
 		return redFlag;
@@ -203,8 +219,6 @@ public class Team08Robot {
 		this.tooClose = tooClose;
 	}
 
-
-
 	public boolean isAtFlagZone() {
 		return atFlagZone;
 	}
@@ -221,6 +235,31 @@ public class Team08Robot {
 		this.atDropZone = atDropZone;
 	}
 
+	//------------------------------------------
+	//Objective getters/setters
+	
+	public Waypoint[] getObjectiveWaypoint()
+	{
+		return objective;
+	}
+
+
+	public int getObjectiveYUR() {
+		return (int) (30.48*objectiveYUR);
+	}
+
+	public int getObjectiveXUR() {
+		return (int) (30.48*objectiveXUR);
+	}
+	public int getSensorRange() {
+		return sensorRange;
+	}
+
+	public void setSensorRange(int sensorRange) {
+		this.sensorRange = sensorRange;
+	}
+
+	//--------------------------------------------
 	public OdometryPoseProvider getOdo(){
 		return this.odometer;
 	}
@@ -252,10 +291,10 @@ public class Team08Robot {
 		return leftCS;
 	}
 
-//
-//	public TouchSensor getTopTouch() {
-//		return this.topTouch;
-//	}
+	//
+	//	public TouchSensor getTopTouch() {
+	//		return this.topTouch;
+	//	}
 
 
 	public RemoteMotor getLeftTrack() {
@@ -287,8 +326,8 @@ public class Team08Robot {
 		distance = frontUS.getDistance();
 
 		//this filters out large values
-		if(distance>60){
-			distance = 60;
+		if(distance>sensorRange){	
+			distance = sensorRange;
 		}
 		return distance;
 	}

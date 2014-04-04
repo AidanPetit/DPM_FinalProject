@@ -9,6 +9,7 @@ import lejos.nxt.Sound;
 import lejos.nxt.UltrasonicSensor;
 import lejos.robotics.Color;
 import lejos.robotics.navigation.Navigator;
+import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.subsumption.Behavior;
 
 /**
@@ -22,6 +23,7 @@ import lejos.robotics.subsumption.Behavior;
  */
 
 public class Search implements Behavior{
+
 	public static boolean suppressed;
 	private static Team08Robot myBot;
 	private int flagColor;
@@ -31,16 +33,30 @@ public class Search implements Behavior{
 	private Navigator myNav;
 
 	private double SLOW_SPEED = 20;
-	private double ROTATE_SPEED = 25;
+	private final int ROTATE_SPEED = 80;
 
-	private int startingAngle = 180;
+	private int startAngle = 0;
 	private int objectCount = 0;
-	private int THRESHOLD = 40;
+	public double DELTA_THRESHOLD = 13;	
+	//Angle variables
+	private float risingEdgeAngle=0;
+	private float currentAngle = 0;
+	private float finalAngle;
+	private float lastAngle;
+	private final int SCAN_ANGLE=90;
+	//Distance variables
+	private int currentDistance = 0;
+	private int lastDistance = 0;
+	private int deltaDistance = 0; 
 
-	private boolean Achecked = false;
-	private boolean Bchecked = false;
+	private int angleA, angleB,angle;
+	private Waypoint[] latchedAngles;
 
-	private double A1, A2, B1, B2;
+
+
+	//Four Corners
+	private Waypoint[] corners;
+
 
 	//Constructor
 	public Search(Team08Robot robot) {
@@ -50,6 +66,13 @@ public class Search implements Behavior{
 		this.myUS = myBot.getFrontUS();
 		this.myPilot = myBot.getPilot();
 		this.myNav = myBot.getNav();
+
+		//Initialize four search corners
+		corners=myBot.getObjectiveWaypoint();
+
+		//Initialize angles array, used Waypoint object, with rising edge angle as X and falling edge, second angle as Y, and polled distance as heading
+		latchedAngles=new Waypoint[6]; //Capacity of 6 objects
+
 	}
 
 	@Override
@@ -60,95 +83,102 @@ public class Search implements Behavior{
 	@Override
 	public void action() {
 		suppressed=false;
-
+		int i=0;
+		myPilot.setRotateSpeed(ROTATE_SPEED);
+		myPilot.setTravelSpeed(SLOW_SPEED);
 		while(!suppressed){
-
-
-			myPilot.setRotateSpeed(ROTATE_SPEED);
-			myNav.rotateTo(startingAngle);
-
-			myPilot.rotateRight();
-
-			int distance = getFilteredData();
-			
-			boolean obj1 = false;
-
-			while(objectCount==0){
-				distance = getFilteredData();
-				LCD.clear(5);
-				LCD.drawString("US: "+ distance, 0, 5);
-
-				if(distance < THRESHOLD){
-					A1 = myBot.getOdo().getPose().getHeading();
-					Sound.beep();
-
-					obj1 = true;
+			do{					 				
+				myNav.goTo(corners[i].x, corners[i].y, startAngle);	//Go to the "right" corner		//<----To be uncommented
+				finalAngle = startAngle+120;				//set angle at which to stop the scan
+				if(finalAngle>360)
+				{
+					finalAngle-=360;
 				}
-				if(distance > THRESHOLD && obj1){
-					A2 = myBot.getOdo().getPose().getHeading();
-					Sound.buzz();
-					objectCount++;
+				currentDistance = myBot.getFilteredData();	//initialize first measurements to avoid getting triggered on start
+				lastDistance = myBot.getFilteredData();
+				currentAngle = myBot.getOdo().getPose().getHeading();	//initialize first angle values;
+				lastAngle = myBot.getOdo().getPose().getHeading();
+				int rotatedAngle=0;
+				//				Sound.playTone(440, 1000);
+				int objectCount = 0;
+				while(rotatedAngle < SCAN_ANGLE)	//Rotate
+				{
+
+					myPilot.rotate(10, false);
+					rotatedAngle+=10;
+
+
+					currentDistance = myBot.getFilteredData();
+					deltaDistance = currentDistance-lastDistance;	//Compute difference ("derivative") between current and last distance measurements
+					if(Math.abs(deltaDistance)>DELTA_THRESHOLD&&deltaDistance<0)	//If distance variation is too high and rising edge :
+					{
+						Sound.beep();
+						risingEdgeAngle=myBot.getOdo().getPose().getHeading();	//Latch first angle
+					}
+					else if(Math.abs(deltaDistance)>DELTA_THRESHOLD&&deltaDistance>0)	//If distance variation exceeds threshold and falling edge : 
+					{
+						Sound.buzz();
+						currentAngle = myBot.getOdo().getPose().getHeading();	//Latch second angle
+						latchedAngles[objectCount]=new Waypoint(risingEdgeAngle, currentAngle, lastDistance);
+						objectCount+=1;
+					}
+					lastDistance = currentDistance;
+					lastAngle = currentDistance;
 				}
+				for(int j=0;j<6;j++)	//Go through 6 objects
+				{					
+					if(latchedAngles[j]!=null)
+					{	
+						//Convert from -180|180 to 0|360 (wraparound)
+
+						angleA=(int)fixAngle(latchedAngles[j].getX());
+						angleB=(int)fixAngle(latchedAngles[j].getY());
+
+
+						//Use angleA as bigger angle
+						if(angleB>angleA)
+						{
+							int temp=angleA;
+							angleA=angleB;
+							angleB=temp;
+						}
+
+						if((angleA-angleB)>180)
+						{
+							angleA-=360;
+						}
+						angle = (angleA+angleB)/2;
+						if(angle>180)
+						{
+							angle-=360;
+						}
+
+						myPilot.setTravelSpeed(SLOW_SPEED);
+						myNav.rotateTo(fixAngle2(angle));
+						myPilot.travel(latchedAngles[j].getHeading());
+
+						if(identifyBlock() == flagColor){
+							Sound.buzz();
+							myBot.setFlagRecognized(true);
+						}
+						else{
+							myPilot.travel(-latchedAngles[j].getHeading());
+						}
+
+					}
+				}
+
+
+				startAngle+=90;	//Increment starting angle so that scan is always starting in right direction
 			}
+			while(i<4);
 
-			boolean obj2 = false;
 
-			while(objectCount==1){
-				distance = getFilteredData();
-				LCD.clear(5);
-				LCD.drawString("US: "+ distance, 0, 5);
-				if(distance < THRESHOLD){
-					B1 = myBot.getOdo().getPose().getHeading();
-					Sound.beep();
-					obj2 = true;
-				}
-				if(distance > THRESHOLD && obj2){
-					B2 = myBot.getOdo().getPose().getHeading();
-					Sound.buzz();
-					objectCount++;
-				}
-			}
-			
-			if(objectCount==2){
-				double A = (A1+A2)/2;
-				double B = (B1+B2)/2;
-				
-				myNav.rotateTo(A);
 
-				while(!Achecked){
-					myPilot.setTravelSpeed(SLOW_SPEED);
-					int dist = getFilteredData();
-					myPilot.travel(dist);
-
-					if(identifyBlock() == flagColor){
-						Sound.twoBeeps();
-						myBot.setFlagRecognized(true);
-
-					}
-					else{
-						myPilot.travel(-dist);
-					}
-					Achecked=true;
-				}
-				if(Achecked && !Bchecked){
-					
-					myNav.rotateTo(B);
-					int dist = getFilteredData();
-					myPilot.setTravelSpeed(SLOW_SPEED);
-					myPilot.travel(dist);
-
-					if(identifyBlock() == flagColor){
-						Sound.twoBeeps();
-						myBot.setFlagRecognized(true);
-					}
-					else{
-						myPilot.travel(-dist);
-					}
-					Bchecked=true;
-				}
-			}
 		}
+
 	}
+
 
 
 	//			if(distance < THRESHOLD){
@@ -201,11 +231,6 @@ public class Search implements Behavior{
 			double ratioRG = intensityR/intensityG;
 			double ratioGB = intensityG/intensityB;
 
-			//			double ratioGR = intensityG/intensityR;
-			//
-			//			double ratioBR = intensityB/intensityR;
-			//			double ratioBG = intensityB/intensityG;
-
 			if(myCS.getColorID()!=7){
 
 
@@ -229,31 +254,28 @@ public class Search implements Behavior{
 		}
 	}
 
+	/*
+	 * return an angle between 0 and 360
+	 */
+	public static double fixAngle(double angle) {
+		angle=angle%360;
+		if(angle<0) angle+=360;
+		return angle;
+	}
+	/*
+	 * return an angle between -180 and 180
+	 */
+	public static double fixAngle2(double angle){
+		angle = fixAngle(angle);
+		if(angle>180) angle-=360;
+		return angle;
 
+	}
 
 	@Override
 	public void suppress() {
 		suppressed=true;
 	}
 
-	private int getFilteredData() {
-		int distance;
-
-		// do a ping
-		myUS.ping();
-
-		// wait for the ping to complete
-		try { Thread.sleep(50); } catch (InterruptedException e) {}
-
-		// there will be a delay here
-		distance = myUS.getDistance();
-
-		//this filters out large values
-		if(distance>60){
-			distance = 60;
-		}
-
-		return distance;
-	}
 
 }
