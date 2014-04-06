@@ -34,7 +34,7 @@ public class Travel implements Behavior{
 	@Override
 	public void action() {
 		suppressed=false;		
-		myBot.getNav().followPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(),myBot.getObjectiveWaypoint()));
+		myBot.getNav().followPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(),myBot.getObjectiveWaypoint()[0]));
 		if(myBot.getNav().pathCompleted())
 		{
 			myBot.setAtFlagZone(true);

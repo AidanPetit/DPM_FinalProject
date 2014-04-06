@@ -35,8 +35,6 @@ public class LightLocalization {
 
 	public int LS_THRESHOLD = 50; //this value needs to be experimented with!
 
-	private double averageLight;
-
 
 	public LightLocalization(Team08Robot myBot) {
 		/*
@@ -61,7 +59,10 @@ public class LightLocalization {
 		 * and a more accurate value for the heading
 		 */
 		
-		averageLight = calibrateLS();
+		double averageLight = calibrateLS();
+		
+		LCD.clear(6);
+		LCD.drawString("AVG:" + averageLight, 0,6);
 
 		boolean anglesClocked = false;
 		int lockCount = 0;
@@ -88,7 +89,6 @@ public class LightLocalization {
 
 			LCD.clear(5);
 			LCD.drawString("LS: "+ currentReading, 0, 5); //output for debugging, might need to disable LCDDisplay to use
-			//			LCD.drawString("count: "+ lockCount, 0, 7); //output for debugging, might need to disable LCDDisplay to use
 
 
 //			if (currentReading<470) {	//old, implementing calibrated average threshold method for etecting lines
@@ -258,9 +258,6 @@ public class LightLocalization {
 
 		result = result/10;
 		
-		LCD.clear(6);
-		LCD.drawString("AVG:" + result, 0,6);
-
 		return result;
 	}
 
