@@ -33,10 +33,10 @@ import lejos.robotics.navigation.Waypoint;
  * @version 1.0
  * @since 1.0
  */
-
 public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
+	private OdometerCorrection odoCorrect;
 	private Navigation nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
@@ -49,6 +49,7 @@ public class Team08Robot {
 	private int redFlag;
 	private Waypoint[] objective;
 	private int sensorRange;
+	private StartCorner corner;
 
 	//Behavior booleans
 	private boolean tooClose;
@@ -77,6 +78,7 @@ public class Team08Robot {
 	private ColorSensor leftCS;		
 	private ColorSensor rightCS;	//for localization
 
+
 	//Testing feature detector
 	private int MAX_DISTANCE = 50;
 	private int DELAY=100;
@@ -95,7 +97,7 @@ public class Team08Robot {
 		this.flagRecognized = false;
 		this.atFlagZone = true;		//Change back to false
 
-
+		
 		//		BluetoothConnection conn = new BluetoothConnection();
 		//
 		//		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
@@ -139,8 +141,8 @@ public class Team08Robot {
 		else {
 			this.sensorRange = (int)30.48*((this.objectiveYUR-this.objectiveYLL));
 		}
-		//--------------------
 
+		
 		//initialize connection with slave
 		LCD.clearDisplay();
 		LCD.drawString("Connecting...",0,0);
@@ -183,6 +185,7 @@ public class Team08Robot {
 		this.rightCS = new ColorSensor(SensorPort.S2);
 		this.frontCS= new ColorSensor(SensorPort.S3);
 
+		//stop tracks
 		this.leftTrack.stop();
 		this.rightTrack.stop();
 
@@ -235,7 +238,6 @@ public class Team08Robot {
 		this.atDropZone = atDropZone;
 	}
 
-	//------------------------------------------
 	//Objective getters/setters
 	
 	public Waypoint[] getObjectiveWaypoint()
@@ -259,7 +261,6 @@ public class Team08Robot {
 		this.sensorRange = sensorRange;
 	}
 
-	//--------------------------------------------
 	public OdometryPoseProvider getOdo(){
 		return this.odometer;
 	}
@@ -333,4 +334,28 @@ public class Team08Robot {
 	}
 
 
+	public StartCorner getCorner() {
+		return this.corner;
+	}
+
+	public boolean isRotating() {
+		if(leftMotor.getRotationSpeed() > 0 && rightMotor.getRotationSpeed() < 0) {
+			return true;
+		}
+		else if(leftMotor.getRotationSpeed() < 0 && rightMotor.getRotationSpeed() > 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+
+	public OdometerCorrection getMyOdoCorrect() {
+		return odoCorrect;
+	}
+	
+	public void setOdometerCorrection(OdometerCorrection correct) {
+		this.odoCorrect = correct;
+	}
 }

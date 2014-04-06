@@ -14,8 +14,8 @@ public class OdometerCorrection extends Thread{
 //	private Navigator myNav;
 //	private Driver myPilot;
 //	private UltrasonicSensor localizationUS;
-//
-//	private Object lock;
+
+	private Object lock;
 
 	int countTime;
 
@@ -62,7 +62,8 @@ public class OdometerCorrection extends Thread{
 		rightlight = 0;
 		countTime = 0;
 
-//		lock = new Object();
+		lock = new Object();
+		
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {}
@@ -87,7 +88,6 @@ public class OdometerCorrection extends Thread{
 				countTime = 0;
 				leftDetected = 0;
 				rightDetected = 0;
-				//Sound.beep();
 			}
 			if (!(myBot.isRotating())) {
 
@@ -118,6 +118,7 @@ public class OdometerCorrection extends Thread{
 				}
 
 				if (leftDetected != 0 && rightDetected != 0) {
+					Sound.playTone(420, 500, 100);
 					correctionCalculator(heading);
 				}
 			}
@@ -127,9 +128,8 @@ public class OdometerCorrection extends Thread{
 			if (correctionEnd - correctionStart < CORRECTION_PERIOD) {
 				try {
 					Thread.sleep(CORRECTION_PERIOD - (correctionEnd-correctionStart));
-				} catch (InterruptedException e) {Sound.beepSequenceUp();}
+				} catch (InterruptedException e) {}
 			}
-
 		}
 	}
 
@@ -218,12 +218,12 @@ public class OdometerCorrection extends Thread{
 
 		myOdo.setPose(current);
 
-//		synchronized (lock) {
+		synchronized (lock) {
 			leftDetected = 0;
 			rightDetected = 0;
 			leftlight = 0;
 			rightlight = 0;
-//		}
+		}
 
 	}
 
@@ -266,9 +266,6 @@ public class OdometerCorrection extends Thread{
 	}
 
 	public void calibrateLightSensors() {
-
-		LCD.clear(6);
-		LCD.drawString("CALIBRATING", 0,6);
 		
 		double result = 0;
 
@@ -278,7 +275,6 @@ public class OdometerCorrection extends Thread{
 		}
 
 		result = result/10;
-
 		this.averageLight = result;
 
 	}

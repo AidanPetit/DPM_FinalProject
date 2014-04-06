@@ -33,7 +33,7 @@ public class LightLocalization {
 	private double rotateSpeed = 60;
 	private double sensorOffset = 12; // in cm, not accurate needs to be measured
 
-	public int LS_THRESHOLD = 50; //this value needs to be experimented with!
+	public int LS_THRESHOLD = 60; //this value needs to be experimented with!
 
 
 	public LightLocalization(Team08Robot myBot) {
@@ -46,6 +46,8 @@ public class LightLocalization {
 		this.myCS = myBot.getRightCS();
 		this.myNav = myBot.getNav();
 		this.myPilot = myBot.getPilot();
+		myCS.setFloodlight(true);
+
 	}
 
 	public void doLocalization(int startingCorner) {
@@ -75,11 +77,8 @@ public class LightLocalization {
 		
 
 		// start rotating and clock all 4 gridlines
-
-		myNav.rotateTo(0);
-		myCS.setFloodlight(true);
-
 		myPilot.setRotateSpeed(rotateSpeed);
+		myNav.rotateTo(0);
 		myPilot.rotateRight();
 
 		while(!anglesClocked){ //keep rotating until all four angles have been clocked
@@ -223,10 +222,6 @@ public class LightLocalization {
 		else if(startingCorner == 4){
 			myNav.rotateTo(-90);
 		}
-
-		try { Thread.sleep(15000); } catch (InterruptedException e) {}  //this delay is to make sure a line is not detected twice
-
-
 	}
 
 	/*
@@ -252,13 +247,11 @@ public class LightLocalization {
 			
 		double result = 0;
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			result += myCS.getNormalizedLightValue();
 		}
 
-		result = result/10;
-		
-		return result;
+		return result/5;	
 	}
-
+	
 }
