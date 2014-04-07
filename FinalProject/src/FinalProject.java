@@ -36,71 +36,37 @@ public class FinalProject {
 	private static LCDDisplay myLCD;
 
 	public static void main(String[] args)  throws Exception{
-		int buttonChoice;
+//		int buttonChoice;
+		LCD.drawString("Press a button", 0, 0);
+		Button.waitForAnyPress();
+		
+		myBot = new Team08Robot();
 
-		do {
-			// clear the display
-			LCD.clear();
+		LCD.clearDisplay();
+		myLCD = new LCDDisplay(myBot.getOdo());
 
-			LCD.drawString("< Left | Right >", 0, 0);
-			LCD.drawString("       |        ", 0, 1);
-			LCD.drawString(" Test  | Full ", 0, 2);
-			LCD.drawString("       | Run", 0, 3);
-			LCD.drawString("       |", 0, 4);
-
-
-			buttonChoice = Button.waitForAnyPress();
-		} while (buttonChoice != Button.ID_LEFT
-				&& buttonChoice != Button.ID_RIGHT);
-
-		if (buttonChoice == Button.ID_LEFT) {
-			myBot = new Team08Robot();
-			myLCD = new LCDDisplay(myBot.getOdo());
-			
-			OdometerCorrection myCorrect = new OdometerCorrection(myBot);
-			myBot.setOdometerCorrection(myCorrect);
-
-			myBot.getNav().goTo(0,60);
-			
-			OdometerCorrection.enableCorrection();
-			myCorrect.run();
-			
-			myBot.getNav().goTo(60, 60);
-			
-//			USLocalization USLocalizer = new USLocalization(myBot);
-//			USLocalizer.doLocalization(3);	
+//		USLocalization USLocalizer = new USLocalization(myBot);
+//		USLocalizer.doLocalization();
 //
-//			LightLocalization LightLocalizer = new LightLocalization(myBot);
-//			LightLocalizer.doLocalization(3);
-			
-		}
-		else{
-			LCD.clearDisplay();
+//		LightLocalization LightLocalizer = new LightLocalization(myBot);
+//		LightLocalizer.doLocalization(myBot.getStartingCorner());
+
+		myBot.getPilot().setTravelSpeed(15);
+		myBot.getPilot().setRotateSpeed(60);
+		
+		
+		Behavior b1=new Travel(myBot);
+		Behavior b2=new Avoid(myBot);
+//		Behavior b3=new Capture(myBot);
+		Behavior b4=new Search(myBot);
+
+		Behavior[] behaviorList = {b1,b2/*,b3*/,b4};
+		Sound.beep();
+		Arbitrator arb = new Arbitrator(behaviorList);
+
+		arb.start();
 
 
-			myBot = new Team08Robot();
-			myLCD = new LCDDisplay(myBot.getOdo());
-
-			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization(1);
-
-			LightLocalization LightLocalizer = new LightLocalization(myBot);
-			LightLocalizer.doLocalization(1);
-
-			myBot.getPilot().setTravelSpeed(20);
-			myBot.getPilot().setRotateSpeed(60);
-
-			Behavior b1=new Travel(myBot);
-			Behavior b2=new Avoid(myBot);
-			Behavior b3=new Capture(myBot);
-			Behavior b4=new Search(myBot);
-
-			Behavior[] behaviorList = {b1,b2,b3,b4};
-			Arbitrator arb = new Arbitrator(behaviorList);
-
-			arb.start();
-
-		}
 
 	}
 

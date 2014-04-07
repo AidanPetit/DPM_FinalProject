@@ -33,21 +33,26 @@ import lejos.robotics.navigation.Waypoint;
  * @version 1.0
  * @since 1.0
  */
+
 public class Team08Robot {
 	private Driver pilot;
 	private OdometryPoseProvider odometer;
-	private OdometerCorrection odoCorrect;
 	private Navigation nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
 
-	//Objective values
+	//Objective search values
 	private int objectiveXLL ;
 	private int objectiveYLL ;
 	private int objectiveXUR;
 	private int objectiveYUR;
 	private int redFlag;
-	private StartCorner corner;
+	private Waypoint[] objective;
+	private int sensorRange;
+	private int startingCorner;
+	
+	//Sensor Normal Range
+	private final int SENSOR_RANGE = 60;
 
 	//Behavior booleans
 	private boolean tooClose;
@@ -55,43 +60,39 @@ public class Team08Robot {
 	private boolean flagRecognized;
 	private boolean atFlagZone;
 	private boolean atDropZone;
+	private boolean check;	//For travel and avoid
+	private boolean obstacle;
 
+
+	//Robot properties
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
 	private static double width=16;
-
+	
+	//Motors
 	private static NXTRegulatedMotor leftMotor=Motor.A;
 	private static NXTRegulatedMotor rightMotor=Motor.B;
-
+	
+	//Slave motors
 	private RemoteMotor leftTrack;
 	private RemoteMotor rightTrack;
-
-	private TouchSensor topTouch;
+	
+	//Sensors
 	private UltrasonicSensor frontUS;
+	private UltrasonicSensor leftUS;
+	private UltrasonicSensor rightUS;
 
-	private ColorSensor frontCS;		//for object detection, changed to RemoteSensorPort to accomodate RS485 connection, untested
+	private ColorSensor frontCS;
 	private ColorSensor leftCS;		
 	private ColorSensor rightCS;	//for localization
-
 
 	//Testing feature detector
 	private int MAX_DISTANCE = 50;
 	private int DELAY=100;
 
 
-	public Waypoint getObjectiveWaypoint()
-	{
-		return (new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL));
-	}
 
 
-	public int getObjectiveYUR() {
-		return (int) (30.48*objectiveYUR);
-	}
-
-	public int getObjectiveXUR() {
-		return (int) (30.48*objectiveXUR);
-	}
 
 	public Team08Robot(){
 		this.pilot=new Driver(leftWheelDiameter, rightWheelDiameter, width, leftMotor, rightMotor, false);
@@ -99,41 +100,63 @@ public class Team08Robot {
 		this.nav=new Navigation(pilot, odometer);
 
 		//Initialize all booleans
-		this.tooClose = false;
+//		this.tooClose = false;
 		this.flagCaptured = false;
 		this.flagRecognized = false;
-		/*
-		BluetoothConnection conn = new BluetoothConnection();
-
-		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
-
-		// example usage of Tranmission class
-		Transmission t = conn.getTransmission();
-		if (t == null) {
-			LCD.drawString("Failed to read transmission", 0, 5);
-		} else {
-			PlayerRole role = t.role;
-			corner = t.startingCorner;
-			int greenZoneLL_X = t.greenZoneLL_X;
-			int greenZoneLL_Y = t.greenZoneLL_Y;
-			this.objectiveXLL = t.redZoneLL_X;
-			this.objectiveYLL = t.redZoneLL_Y;
-			this.objectiveXUR = t.redZoneUR_X;
-			this.objectiveYUR = t.redZoneUR_Y;
-			int greenDZone_X = t.greenDZone_X;
-			int greenDZone_Y = t.greenDZone_Y;
-			int redDZone_X = t.redDZone_X;
-			int redDZone_Y = t.redDZone_Y;
-			int greenFlag = t.greenFlag;
-			redFlag=t.redFlag;
+		this.atFlagZone = false;		//Change back to false
+		this.setObstacle(false);
+		
 
 
+		//		BluetoothConnection conn = new BluetoothConnection();
+		//
+		//		// as of this point the bluetooth connection is closed again, and you can pair to another NXT (or PC) if you wish
+		//
+		//		// example usage of Tranmission class
+		//		Transmission t = conn.getTransmission();
+		//		if (t == null) {
+		//			LCD.drawString("Failed to read transmission", 0, 5);
+		//		} else {
+		//			PlayerRole role = t.role;
+		//			StartCorner corner = t.startingCorner;
+		//			int greenZoneLL_X = t.greenZoneLL_X;
+		//			int greenZoneLL_Y = t.greenZoneLL_Y;
+		//			this.objectiveXLL = t.redZoneLL_X;
+		//			this.objectiveYLL = t.redZoneLL_Y;
+		//			this.objectiveXUR = t.redZoneUR_X;
+		//			this.objectiveYUR = t.redZoneUR_Y;
+		//			int greenDZone_X = t.greenDZone_X;
+		//			int greenDZone_Y = t.greenDZone_Y;
+		//			int redDZone_X = t.redDZone_X;
+		//			int redDZone_Y = t.redDZone_Y;
+		//			int greenFlag = t.greenFlag;
+		//			redFlag=t.redFlag;
+		//
+		//
+		//			LCD.drawString("All received",0,0);
+		//			// print out the transmission information
+		//			conn.printTransmission();
+		//		}
 
-			LCD.drawString("All received",0,0);
-			// print out the transmission information
-			conn.printTransmission();
+		//For testing purpose :
+		this.objectiveXLL=4;
+		this.objectiveYLL=5;
+		this.objectiveXUR=6;
+		this.objectiveYUR=6;
+		int greenFlag=3;
+		startingCorner = 1;
+		redFlag=3;
+		
+		
+		if((this.objectiveXUR-this.objectiveXLL)>(this.objectiveYUR-this.objectiveYLL))	//Scale sensorRange with respect to the objective zone, for the search scan. 						
+		{																				//Anything beyond the longest side of the objective zone is not in the corner scan zone
+			this.sensorRange = (int)30.48*((this.objectiveXUR-this.objectiveXLL));		//As the robot should go through all 4 corners of the zone, the whole zone should get throroughly scanned.
 		}
-		 */
+		else {
+			this.sensorRange = (int)30.48*((this.objectiveYUR-this.objectiveYLL));
+		}
+		//--------------------
+
 		//initialize connection with slave
 		LCD.clearDisplay();
 		LCD.drawString("Connecting...",0,0);
@@ -162,19 +185,29 @@ public class Team08Robot {
 		this.rightTrack = slave.B;
 		//		this.topTouch = new TouchSensor(slave.S1);
 		this.frontUS = new UltrasonicSensor(slave.S2);
+		this.leftUS = new UltrasonicSensor(slave.S1);
+		this.rightUS = new UltrasonicSensor(slave.S3);
+
+		//Initialize objective corners array
+		this.objective=new Waypoint[4];
+		this.objective[0] = new Waypoint(30.48*objectiveXLL,30.48*objectiveYLL);
+		this.objective[1] = new Waypoint(30.48*objectiveXUR,30.48*objectiveYLL);
+		this.objective[2] = new Waypoint(30.48*objectiveXUR,30.48*objectiveYUR);
+		this.objective[3] = new Waypoint(30.48*objectiveXLL,30.48*objectiveYUR);
+
 
 		//Initialize master sensors
 		this.leftCS = new ColorSensor(SensorPort.S1);
 		this.rightCS = new ColorSensor(SensorPort.S2);
 		this.frontCS= new ColorSensor(SensorPort.S3);
 
-		//stop tracks
 		this.leftTrack.stop();
 		this.rightTrack.stop();
 
 	}
 
 	//Boolean getters and setters
+
 
 	public int getRedFlag() {
 		return redFlag;
@@ -196,6 +229,22 @@ public class Team08Robot {
 		this.flagRecognized = flagRecognized;
 	}
 
+	public boolean getCheck() {
+		return check;
+	}
+
+	public void setCheck(boolean check) {
+		this.check = check;
+	}
+
+	public boolean getObstacle() {
+		return obstacle;
+	}
+
+	public void setObstacle(boolean obstacle) {
+		this.obstacle = obstacle;
+	}
+
 	public boolean isTooClose() {
 		return tooClose;
 	}
@@ -203,8 +252,6 @@ public class Team08Robot {
 	public void setTooClose(boolean tooClose) {
 		this.tooClose = tooClose;
 	}
-
-
 
 	public boolean isAtFlagZone() {
 		return atFlagZone;
@@ -222,6 +269,39 @@ public class Team08Robot {
 		this.atDropZone = atDropZone;
 	}
 
+	//------------------------------------------
+	//Objective getters/setters
+	
+	public Waypoint[] getObjectiveWaypoint()
+	{
+		return objective;
+	}
+
+
+	public int getObjectiveYUR() {
+		return (int) (30.48*objectiveYUR);
+	}
+
+	public int getObjectiveXUR() {
+		return (int) (30.48*objectiveXUR);
+	}
+	public int getStartingCorner() {
+		return startingCorner;
+	}
+
+	public void setStartingCorner(int startingCorner) {
+		this.startingCorner = startingCorner;
+	}
+
+	public int getSensorRange() {
+		return sensorRange;
+	}
+
+	public void setSensorRange(int sensorRange) {
+		this.sensorRange = sensorRange;
+	}
+
+	//--------------------------------------------
 	public OdometryPoseProvider getOdo(){
 		return this.odometer;
 	}
@@ -233,9 +313,18 @@ public class Team08Robot {
 	public Driver getPilot(){
 		return this.pilot;
 	}
-
+	
+	//Ultrasonic Sensors getters
 	public UltrasonicSensor getFrontUS(){
 		return this.frontUS;
+	}
+	
+	public UltrasonicSensor getLeftUS(){
+		return this.leftUS;
+	}	
+	
+	public UltrasonicSensor getRightUS(){
+		return this.rightUS;
 	}
 
 
@@ -288,35 +377,30 @@ public class Team08Robot {
 		distance = frontUS.getDistance();
 
 		//this filters out large values
-		if(distance>60){
-			distance = 60;
+		if(distance>SENSOR_RANGE){	
+			distance = SENSOR_RANGE;
+		}
+		return distance;
+	}
+	
+	public int getSearchFilteredData() {
+		int distance;
+
+		// do a ping
+		frontUS.ping();
+
+		// wait for the ping to complete
+		try { Thread.sleep(50); } catch (InterruptedException e) {}
+
+		// there will be a delay here
+		distance = frontUS.getDistance();
+
+		//this filters out large values
+		if(distance>sensorRange){	
+			distance = sensorRange;
 		}
 		return distance;
 	}
 
 
-	public StartCorner getCorner() {
-		return this.corner;
-	}
-
-	public boolean isRotating() {
-		if(leftMotor.getRotationSpeed() > 0 && rightMotor.getRotationSpeed() < 0) {
-			return true;
-		}
-		else if(leftMotor.getRotationSpeed() < 0 && rightMotor.getRotationSpeed() > 0){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-
-
-	public OdometerCorrection getMyOdoCorrect() {
-		return odoCorrect;
-	}
-	
-	public void setOdometerCorrection(OdometerCorrection correct) {
-		this.odoCorrect = correct;
-	}
 }
