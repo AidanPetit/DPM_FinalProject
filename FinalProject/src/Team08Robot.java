@@ -41,6 +41,7 @@ public class Team08Robot {
 	private Navigation nav;
 	private NXTCommConnector connector;
 	private RemoteNXT slave;
+	private OdometerCorrection odoCorrect;
 
 	//Objective search values
 	private int objectiveXLL ;
@@ -403,6 +404,26 @@ public class Team08Robot {
 			distance = sensorRange;
 		}
 		return distance;
+	}
+	
+	public boolean isRotating() {
+		if(leftMotor.getRotationSpeed() > 0 && rightMotor.getRotationSpeed() < 0) {
+			return true;
+		}
+		else if(leftMotor.getRotationSpeed() < 0 && rightMotor.getRotationSpeed() > 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	public OdometerCorrection getMyOdoCorrect() {
+		return this.odoCorrect;
+	}
+	
+	public void setOdometerCorrection(OdometerCorrection correct) {
+		this.odoCorrect = correct;
 	}
 
 
