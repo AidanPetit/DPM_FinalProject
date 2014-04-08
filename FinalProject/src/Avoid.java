@@ -21,7 +21,7 @@ import lejos.robotics.subsumption.Behavior;
  */
 
 public class Avoid implements Behavior{
-//	private static final float MAP_MIDPOINT = 90;
+	//	private static final float MAP_MIDPOINT = 90;
 	public static boolean suppressed;
 	private static Team08Robot myBot;
 
@@ -33,35 +33,39 @@ public class Avoid implements Behavior{
 	//takeControl defines (returns) the conditions for which the behavior should take over
 	@Override
 	public boolean takeControl() {
-		return (myBot.getFilteredData()<35);
+		return (myBot.getObstacle()==true);
 	}
 
 	@Override
 	public void action() {
 		suppressed=false;
-
-		myBot.getNav().clearPath();
-		myBot.getPilot().rotate(90);
+		Sound.buzz();
+		double startingAngle = myBot.getOdo().getPose().getHeading();
+		myBot.getPilot().rotate(-90);
 		if(myBot.getFilteredData()>35)
 		{
-			myBot.getPilot().travel(25);
-			myBot.getPilot().rotate(-90);
+			myBot.setMyPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(), myBot.getObjectiveWaypoint()[0]));
+			myBot.setObstacle(false);	
 		}
-		else{
-			myBot.getPilot().rotate(180);	
+		else 
+		{
+			myBot.getPilot().rotate(180);
 			if(myBot.getFilteredData()>35)
 			{
-				myBot.getPilot().travel(25);
-				myBot.getPilot().rotate(90);
+				myBot.setMyPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(), myBot.getObjectiveWaypoint()[0]));
+				myBot.setObstacle(false);
 			}
 			else {
-				myBot.getPilot().rotate(-90);
-				myBot.getPilot().travel(25);
+				myBot.getNav().rotateTo(startingAngle+180);
+				myBot.getPilot().travel(30.48);
+				myBot.getPilot().rotate(90);
+				myBot.setMyPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(), myBot.getObjectiveWaypoint()[0]));
+				myBot.setObstacle(false);
 			}
-		}
-		
-		
 
+		}
+
+		myBot.setObstacle(false);
 	}
 
 	@Override

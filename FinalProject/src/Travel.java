@@ -5,6 +5,7 @@
  */
 import lejos.nxt.Sound;
 import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 import lejos.robotics.subsumption.Behavior;
 
 /**
@@ -20,10 +21,13 @@ import lejos.robotics.subsumption.Behavior;
 public class Travel implements Behavior{
 	public static boolean suppressed;
 	private static Team08Robot myBot;
-	
+	private final int BLOCK_AHEAD_DISTANCE = 35;
+//	private Path generatedPath;
 	//Constructor
 	public Travel(Team08Robot robot) {
-		myBot=robot;
+		myBot = robot;
+//		myPath = myBot.getNav().PathMaker(myBot.getOdo().getPose(), myBot.getObjectiveWaypoint()[0]);
+		myBot.setMyPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(), myBot.getObjectiveWaypoint()[0]));
 	}
 
 	@Override
@@ -34,11 +38,17 @@ public class Travel implements Behavior{
 	@Override
 	public void action() {
 		suppressed=false;		
-		myBot.getNav().followPath(myBot.getNav().PathMaker(myBot.getOdo().getPose(),myBot.getObjectiveWaypoint()[0]));
-		if(myBot.getNav().pathCompleted())
+		while(!suppressed)
 		{
-			myBot.setAtFlagZone(true);
+			if(myBot.getFilteredData()<BLOCK_AHEAD_DISTANCE)
+			{
+				myBot.setObstacle(true);
+			}
+			else {
+				myBot.getNav().followPath(myBot.getMyPath());
+			}
 		}
+		
 
 	}
 	
