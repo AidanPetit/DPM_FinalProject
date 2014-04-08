@@ -60,23 +60,69 @@ public class FinalProject {
 			Navigation myNav = myBot.getNav();
 			
 			USLocalization USLocalizer = new USLocalization(myBot);
-			USLocalizer.doLocalization(1);	
+			USLocalizer.doLocalization(3);	
 			
 			LightLocalization LightLocalizer = new LightLocalization(myBot);
-			LightLocalizer.doLocalization(1);
+			LightLocalizer.doLocalization(3);
 
+			myBot.getPilot().setRotateSpeed(60);
+			myBot.getPilot().setTravelSpeed(10);
+			
+			Waypoint test = new Waypoint(0.5*30.48,0);
+			Waypoint t2 = new Waypoint(0.5*30.48,1.5*30.48);
+			Waypoint t3 = new Waypoint(1.5*30.48,1.5*30.48);
+			Waypoint t4 = new Waypoint(1.5*30.48,0);
+			Waypoint t5 = new Waypoint(0,0);
 
-			Waypoint test = new Waypoint(60,60);
-
-			Path myPath = myNav.PathMaker(myBot.getOdo().getPose(),test);
+			Path myPath = new Path();
+			
+			myPath.add(test);
+			myPath.add(t2);
+			myPath.add(t3);
+			myPath.add(t4);
+			myPath.add(t5);
 
 			myNav.followPath(myPath);
-
+			
 			OdometerCorrection myCorrect = new OdometerCorrection(myBot);
 			myBot.setOdometerCorrection(myCorrect);
 			
 			OdometerCorrection.enableCorrection();
 			myCorrect.start();
+						
+			while(!myNav.pathCompleted()) {
+				//do nothing
+			}
+			
+			Sound.twoBeeps();
+
+
+			
+//			myBot.getPilot().rotateRight();
+//			ColorSensor cs = myBot.getRightCS();
+//			int current = cs.getNormalizedLightValue();
+//			
+//			while(true){
+//				current = cs.getNormalizedLightValue();
+//				LCD.clear(5);
+//				LCD.drawString("CS: "+current, 0,5);
+//
+//				
+//				if (current < 350){
+//					myBot.getPilot().stop();
+//					double angle = myBot.getOdo().getPose().getHeading();
+//					LCD.clear(4);
+//					LCD.drawString("angle: "+angle, 0,4);
+//					break;
+//				}
+//			}
+//			
+//			try { Thread.sleep(15000); } catch (InterruptedException e) {}  
+			
+//			myBot.getPilot().rotate(360);
+//			myBot.getPilot().rotate(360);
+//			myBot.getPilot().rotate(360);
+//			myBot.getPilot().rotate(360);						
 
 		}
 		else{

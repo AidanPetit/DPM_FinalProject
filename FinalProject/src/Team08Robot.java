@@ -61,7 +61,7 @@ public class Team08Robot {
 	//Robot properties
 	private static double leftWheelDiameter=4.32;		//these values are accurate
 	private static double rightWheelDiameter=4.32;
-	private static double width=16;
+	private static double width=16.5;
 	
 	//Motors
 	private static NXTRegulatedMotor leftMotor=Motor.A;

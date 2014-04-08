@@ -4,7 +4,7 @@
  *  Aidan Petit
  */
 import lejos.nxt.ColorSensor;
-import lejos.nxt.LCD;
+//import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.Navigator;
@@ -63,8 +63,8 @@ public class LightLocalization {
 		
 		double averageLight = calibrateLS();
 		
-		LCD.clear(6);
-		LCD.drawString("AVG:" + averageLight, 0,6);
+//		LCD.clear(6);
+//		LCD.drawString("AVG:" + averageLight, 0,6);
 
 		boolean anglesClocked = false;
 		int lockCount = 0;
@@ -86,11 +86,9 @@ public class LightLocalization {
 			
 			int currentReading = myCS.getNormalizedLightValue(); //get a new value for the light reading every iteration
 
-			LCD.clear(5);
-			LCD.drawString("LS: "+ currentReading, 0, 5); //output for debugging, might need to disable LCDDisplay to use
+//			LCD.clear(5);
+//			LCD.drawString("LS: "+ currentReading, 0, 5); //output for debugging, might need to disable LCDDisplay to use
 
-
-//			if (currentReading<470) {	//old, implementing calibrated average threshold method for etecting lines
 				
 			if(currentReading < averageLight - LS_THRESHOLD) {
 				double currentTheta = odo.getPose().getHeading();
@@ -164,7 +162,7 @@ public class LightLocalization {
 		 *  X and Y are cast to float, precision shouldnt be an issue
 		 */
 		double currentTheta = fixAngle(odo.getPose().getHeading());
-		double newTheta = fixAngle2(currentTheta+(newHeadingY-52.5));
+		double newTheta = fixAngle2(currentTheta+(newHeadingY-56));	// Y-52.5   
 
 		//set the odometer to reflect the new X, Y and theta values		
 		if(startingCorner == 1) {
@@ -217,7 +215,6 @@ public class LightLocalization {
 		}
 		else if(startingCorner == 3){
 			myNav.rotateTo(180);
-
 		}
 		else if(startingCorner == 4){
 			myNav.rotateTo(-90);
@@ -234,7 +231,7 @@ public class LightLocalization {
 	}
 
 	/*
-	 * return an angle between -180 and 180
+	 * return an angle between -179 and 180
 	 */
 	public static double fixAngle2(double angle){
 		angle = fixAngle(angle);

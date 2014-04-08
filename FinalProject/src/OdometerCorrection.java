@@ -23,14 +23,14 @@ public class OdometerCorrection extends Thread{
 
 	//these store the X or Y coordinates of the odometer's position
 	//when a black line is detected
-	public double leftDetected;
-	public double rightDetected;
+	public double leftLineValue;
+	public double rightLineValue;
 
-	double leftlight;
-	double rightlight;
+	double leftLight;
+	double rightLight;
 
-	//needs to be measured
-	public static final double COLORSENSORS_DISTANCE = 9;
+	//this is correct
+	public static final double COLORSENSORS_DISTANCE = 21;
 
 	//need to experiment with these values
 	public static final int ANGLE_TOLERANCE = 0; //this value needs to be experimented with!
@@ -56,10 +56,10 @@ public class OdometerCorrection extends Thread{
 
 		enabled = false;
 		averageLight = 0;
-		leftDetected = 0;
-		rightDetected = 0;
-		leftlight = 0;
-		rightlight = 0;
+		leftLineValue = 0;
+		rightLineValue = 0;
+		leftLight = 0;
+		rightLight = 0;
 		countTime = 0;
 
 		lock = new Object();
@@ -71,6 +71,9 @@ public class OdometerCorrection extends Thread{
 	}
 
 	public void run() {
+		leftCS.setFloodlight(true);
+		rightCS.setFloodlight(true);
+		
 		//sensors calibrated each new run
 		calibrateLightSensors();
 
@@ -83,42 +86,52 @@ public class OdometerCorrection extends Thread{
 			//0 - north, 1 - east, 2 - south, 3 - west
 			int heading = getHeadingNumber();
 
+			LCD.clear(4);
+			LCD.drawString("heading: "+heading, 0,4);
+
+			
 			countTime++;
 			if (countTime == 100) {
 				countTime = 0;
-				leftDetected = 0;
-				rightDetected = 0;
+				leftLineValue = 0;
+				rightLineValue = 0;
 			}
 			if (!(myBot.isRotating())) {
 
-				leftlight = leftCS.getNormalizedLightValue();
-				rightlight = rightCS.getNormalizedLightValue();
+				leftLight = leftCS.getNormalizedLightValue();
+				rightLight = rightCS.getNormalizedLightValue();
+				
+//				LCD.drawString("L: "+leftLight, 0,3);
+//				LCD.drawString("R: "+rightLight, 0,4);
+//				LCD.drawString("AVG: "+averageLight, 0,7);
 
-				if (leftlight < averageLight - SENSOR_THRESHOLD) {
-					LCD.clear(5);
-					LCD.drawString("Left Line", 0,5);
+				//detect line under left CS
+				if (leftLight < averageLight - SENSOR_THRESHOLD) {
+					
+					Sound.beep();
 					
 					if (heading == 0 || heading == 2) {
-						leftDetected = myOdo.getPose().getY();
+						leftLineValue = myOdo.getPose().getY();
 					}
 					else {
-						leftDetected = myOdo.getPose().getX();
+						leftLineValue = myOdo.getPose().getX();
 					}
 				}
-
-				if (rightlight < averageLight - SENSOR_THRESHOLD) {
-					LCD.clear(5);
-					LCD.drawString("Right Line", 0,5);
+				//detect line under right CS
+				if (rightLight < averageLight - SENSOR_THRESHOLD) {
+					
+					Sound.buzz();
+					
 					if (heading == 0 || heading == 2) {
-						rightDetected = myOdo.getPose().getY();
+						rightLineValue = myOdo.getPose().getY();
 					}
 					else {
-						rightDetected = myOdo.getPose().getX();
+						rightLineValue = myOdo.getPose().getX();
 					}
 				}
 
-				if (leftDetected != 0 && rightDetected != 0) {
-					Sound.playTone(420, 500, 100);
+				//only apply correction when both sensors have detected a line
+				if (leftLineValue != 0 && rightLineValue != 0) {
 					correctionCalculator(heading);
 				}
 			}
@@ -145,16 +158,16 @@ public class OdometerCorrection extends Thread{
 	private int getHeadingNumber() {
 		float angle = myOdo.getPose().getHeading();
 
-		if(angle>(0.8*90) && angle<(1.2*90)) {
+		if(angle>(0.7*90) && angle<(1.3*90)) {
 			return 0;
 		}
-		else if((angle > 165 && angle <= 180) || (angle < -165 && angle >= -179)) {
+		else if((angle > 153 && angle <= 180) || (angle < -153 && angle >= -180)) {
 			return 1;
 		}
-		else if(angle<(0.8*-90) && angle>(1.2*90)) {
+		else if(angle<(0.7*-90) && angle>(1.3*-90)) {
 			return 2;
 		}
-		else if(angle < 15 && angle > -15) {
+		else if(angle < 27 && angle > -27) {
 			return 3;
 		}
 		else{
@@ -168,12 +181,12 @@ public class OdometerCorrection extends Thread{
 			int heading = currentHeading;
 
 			double angle_rad;
-//			double angle_degree;
+			double angle_deg;
 			double positionCorrection;
 
 			/*
 			 * When a line is detected the light value reported by the colorsensor
-			 * is stored in rightDetected or leftDetected. These values are saved until the next correction period
+			 * is stored in rightLineValue or leftLineValue. These values are saved until the next correction period
 			 * 
 			 * Correction is applied only when both of these are set
 			 * 
@@ -182,49 +195,47 @@ public class OdometerCorrection extends Thread{
 			 * 
 			 */
 
-			angle_rad = Math.atan((rightDetected - leftDetected)/COLORSENSORS_DISTANCE); //angle correction
-//			angle_degree = angle_rad*(180/Math.PI);
-			positionCorrection = Math.abs(rightDetected - leftDetected)/2;
+			angle_rad = Math.atan((rightLineValue - leftLineValue)/COLORSENSORS_DISTANCE); //angle correction
+			angle_deg = angle_rad*(180/Math.PI);
+			positionCorrection = Math.abs(rightLineValue - leftLineValue)/2;
 
+			LCD.clear(5);
+			LCD.drawString("deg: "+angle_deg, 0,5);
+
+			
 			switch(heading) {				
-			case 0: correctTheta(angle_rad);
+			case 0: correctTheta(90 - angle_deg);		//north +90 deg
 			correctPositionY(positionCorrection);
 			break;
-			case 1: correctTheta(angle_rad + ((Math.PI)/2));
+			case 1: correctTheta(-angle_deg);			//east is 0 deg
 			correctPositionX(positionCorrection);
 			break;
-			case 2: correctTheta(Math.PI - angle_rad);
+			case 2: correctTheta(-90 - angle_deg);		//south is -90 deg
 			correctPositionY(positionCorrection);
 			break;
-			case 3: correctTheta(((3*Math.PI)/2) - angle_rad);
+			case 3: correctTheta(180 - angle_deg);		//west +180 deg
 			correctPositionX(positionCorrection);
 			break;
 
 			}
-			calibrateLightSensors();
 		}
-
-
 	}
 
-	public void correctTheta(double angle) {
+	public void correctTheta(double degreeAngle) {
 		
 		LCD.clear(6);
-		LCD.drawString("THETA CORRECT", 0,6);
-		
+		LCD.drawString("new H: "+degreeAngle, 0,6);
 		
 		Pose current = myOdo.getPose();
-		current.setHeading((float)Math.toDegrees(angle));
-
-		myOdo.setPose(current);
+		current.setHeading((float)degreeAngle);
 
 		synchronized (lock) {
-			leftDetected = 0;
-			rightDetected = 0;
-			leftlight = 0;
-			rightlight = 0;
+			myOdo.setPose(current);
+			leftLineValue = 0;
+			rightLineValue = 0;
+			leftLight = 0;
+			rightLight = 0;
 		}
-
 	}
 
 
@@ -234,8 +245,6 @@ public class OdometerCorrection extends Thread{
 		 * nearest 10. Then add the positionCorrection 
 		 *
 		 */
-		LCD.clear(6);
-		LCD.drawString("Y CORRECT", 0,6);
 		
 		double currentvalue = myOdo.getPose().getY();
 		double rounded = 10*Math.rint(currentvalue/10);
@@ -250,9 +259,6 @@ public class OdometerCorrection extends Thread{
 
 	public void correctPositionX(double positionalcorrection) {
 		//identical to above but for X values instead of Y
-		LCD.clear(6);
-		LCD.drawString("X CORRECT", 0,6);
-		
 		
 		double currentvalue = myOdo.getPose().getX();
 		double rounded = 10*Math.rint(currentvalue/10);

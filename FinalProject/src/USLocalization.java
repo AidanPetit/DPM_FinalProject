@@ -33,7 +33,7 @@ public class USLocalization {
 	private Driver myPilot;
 	private UltrasonicSensor localizationUS;
 
-	private double rotateSpeed = 100;	//degrees per second
+	private double rotateSpeed = 80;	//degrees per second
 	private int threshold = 35;
 	private int margin = 3;
 
