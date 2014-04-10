@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * BlockPoint Object class, which is used to save two angles and the distance to that object.
  * The first angle is used to latch the first detected, usually rising edge of the object, and the second is the second detected edge, usually a falling edge.
@@ -7,8 +6,6 @@
  * @version 2.5
  * @since 2.0
  */
-=======
->>>>>>> FETCH_HEAD
 
 public class BlockPoint {
 
@@ -21,10 +18,7 @@ public class BlockPoint {
 		this.distance = distance;
 	}
 	
-<<<<<<< HEAD
 	//Accessors
-=======
->>>>>>> FETCH_HEAD
 	public double getSecondAngle() {
 		return secondAngle;
 	}
