@@ -4,20 +4,27 @@ import lejos.nxt.comm.*;
 import lejos.util.TextMenu;
 
 /**
- * Create an LCP responder to handle LCP requests. Allow the
+ * Initialize an LCP responder to handle LCP requests. Allow the
  * User to choose between Bluetooth, USB and RS485 protocols.
  * 
- *
+ * This is the code that is run on our SLAVE brick
+ * 
+ * @param connector NXTCommConnector standard connector interface connect/to wait for connection
+ * 
+ *  @author Wei-Di Chang, Aidan Petit
+ *  @version 3.0
+ *  @since 1.0
  */
 public class NXTLCPRespond
 {
-    /**
-     * Our local Responder class so that we can over-ride the standard
+    /*
+     * Our local Responder class so that we can override the standard
      * behaviour. We modify the disconnect action so that the thread will
      * exit.
      */
     static class Responder extends LCPResponder
     {
+    	//Super constructor
         Responder(NXTCommConnector con)
         {
             super(con);
@@ -30,6 +37,11 @@ public class NXTLCPRespond
         }
     }
 
+    /*
+     * This 'main' is what is running on our SLAVE brick
+     * It opens and maintains a connection with the MASTER brick
+     * to relay sensor data
+     */
     public static void main(String[] args) throws Exception
     {
         String[] connectionStrings = new String[]{"Bluetooth", "USB", "RS485"};

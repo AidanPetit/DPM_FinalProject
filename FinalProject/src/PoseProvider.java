@@ -3,8 +3,7 @@
  *  Wei-Di Chang 260524917
  *  Aidan Petit
  */
-import lejos.util.Timer;
-import lejos.util.TimerListener;
+
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.MoveProvider;
 
@@ -24,10 +23,10 @@ import lejos.robotics.navigation.MoveProvider;
  */
 
 public class PoseProvider extends OdometryPoseProvider {
-
+	
+	//	Superconstructor
 	public PoseProvider(MoveProvider mp) {
 		super(mp);
-		// TODO Auto-generated constructor stub
 	}
 
 }
